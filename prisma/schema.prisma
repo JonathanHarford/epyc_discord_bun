@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model game {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now()) @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt
+    done      Boolean  @default(false)
+    turns     turn[]   @relation("GameToTurn")
+
+    @@index([id, done], map: "idx_game")
+}
+
+model turn {
+    id           Int      @id @default(autoincrement())
+    createdAt    DateTime @default(now()) @db.Timestamptz(6)
+    updatedAt    DateTime @updatedAt
+    done         Boolean  @default(false)
+    sentenceTurn Boolean  @default(true)
+    sentence     String?
+    picture      String?
+    game         game     @relation("GameToTurn", fields: [gameId], references: [id])
+    gameId       Int
+    player       player   @relation(fields: [playerId], references: [id])
+    playerId     Int
+
+    @@index([gameId], map: "idx_game_turn")
+    @@index([playerId, done], map: "idx_player_turn")
+    @@index([id, done], map: "idx_turn")
+}
+
+model player {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now()) @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt
+    discordId String   @unique
+    turns     turn[]
+}
+
+// CREATE OR REPLACE FUNCTION update_row_modified_function_()
+//   RETURNS TRIGGER
+// AS
+// $$
+//   BEGIN
+//     -- ASSUMES the table has a column named exactly "m_at".
+//     -- Fetch date-time of actual current moment from clock, rather than start of statement or start of transaction.
+//     NEW.m_at = clock_timestamp();
+//     RETURN NEW;
+//   END;
+// $$
+// LANGUAGE 'plpgsql';
+
+// CREATE TRIGGER row_mod_on_player_trigger_
+//   BEFORE UPDATE
+//   ON player
+//   FOR EACH ROW
+//     EXECUTE PROCEDURE update_row_modified_function_();
+
+// CREATE TRIGGER row_mod_on_game_trigger_
+//   BEFORE UPDATE
+//   ON game
+//   FOR EACH ROW
+//     EXECUTE PROCEDURE update_row_modified_function_();
+
+// CREATE TRIGGER row_mod_on_turn_trigger_
+//   BEFORE UPDATE
+//   ON turn
+//   FOR EACH ROW
+//     EXECUTE PROCEDURE update_row_modified_function_();
