@@ -10,17 +10,17 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model game {
+model Game {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now()) @db.Timestamptz(6)
     updatedAt DateTime @updatedAt
     done      Boolean  @default(false)
-    turns     turn[]   @relation("GameToTurn")
+    turns     Turn[]   @relation("GameToTurn")
 
     @@index([id, done], map: "idx_game")
 }
 
-model turn {
+model Turn {
     id           Int      @id @default(autoincrement())
     createdAt    DateTime @default(now()) @db.Timestamptz(6)
     updatedAt    DateTime @updatedAt
@@ -28,9 +28,9 @@ model turn {
     sentenceTurn Boolean  @default(true)
     sentence     String?
     picture      String?
-    game         game     @relation("GameToTurn", fields: [gameId], references: [id])
+    game         Game     @relation("GameToTurn", fields: [gameId], references: [id])
     gameId       Int
-    player       player   @relation(fields: [playerId], references: [id])
+    player       Player   @relation(fields: [playerId], references: [id])
     playerId     Int
 
     @@index([gameId], map: "idx_game_turn")
@@ -38,12 +38,12 @@ model turn {
     @@index([id, done], map: "idx_turn")
 }
 
-model player {
+model Player {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now()) @db.Timestamptz(6)
     updatedAt DateTime @updatedAt
     discordId String   @unique
-    turns     turn[]
+    turns     Turn[]
 }
 
 // CREATE OR REPLACE FUNCTION update_row_modified_function_()

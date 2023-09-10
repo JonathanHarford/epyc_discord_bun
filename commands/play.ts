@@ -1,5 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Game, Turn, Player } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -7,59 +7,42 @@ export const data = new SlashCommandBuilder()
   .setName("play")
   .setDescription("Initiate a turn in a game of Eat Poop You Can.");
 
-export async function execute(interaction: CommandInteraction) {
-  const user = interaction.user;
-  // Create player if none exists
-  const player = await prisma.player.upsert({
-    where: { discordId: user.id },
+const createOrFindPlayer = async (discordId: string): Promise<Player> => {
+  return prisma.player.upsert({
+    where: { discordId: discordId },
     update: {},
-    create: { discordId: user.id },
+    create: { discordId: discordId },
   });
-  if (!player) {
-    return interaction.reply("ERROR: Could not find or create a player.");
-  }
+}
 
-  // Find player's pending turn
-  const pendingTurn = await prisma.turn.findFirst({
+const findPendingTurn = async (player: Player): Promise<Turn|null> => {
+  return prisma.turn.findFirst({
     where: {
       player: player,
       done: false,
     },
   });
-  // If a pending turn is found, return it
-  if (pendingTurn) {
-    return interaction.reply(`You have a pending turn ${pendingTurn.id}.`);
-  }
+}
 
-  // Find a game that is available that has no turns by the player
-  console.log("Searching for game")
-  let game = await prisma.game.findFirst({
+const findAvailableGame = async (player: Player): Promise<Game|null> => {
+  return prisma.game.findFirst({
     where: {
       done: false,
       turns: {
         none: {
-          player: {
-            discordId: user.id,
-          },
+          player: player,
         },
       },
     },
   });
-  // If no game is found, create a new game
-  if (!game) {
-    console.log("No game found, creating a new one")
-    game = await prisma.game.create({data: {}});
-  }
+}
 
-  // Should never happen?
-  if (!game) {
-    return interaction.reply("ERROR: Could not find or create a game.");
-  }
+const createNewGame = async (): Promise<Game> => {
+  return prisma.game.create({data: {}});
+}
 
-
-  // Create a turn for the player
-  console.log("Creating a new turn")
-  const newTurn = await prisma.turn.create({
+const createNewTurn = async (game: Game, player: Player): Promise<Turn> => {
+  return prisma.turn.create({
     data: {
       game: {
         connect: {
@@ -73,5 +56,20 @@ export async function execute(interaction: CommandInteraction) {
       },
     },
   });
+}
+
+export async function execute(interaction: CommandInteraction) {
+  const user = interaction.user;
+
+  const player = await createOrFindPlayer(user.id);
+
+  const pendingTurn = await findPendingTurn(player);
+  if (pendingTurn) { return interaction.reply(`You have a pending turn ${pendingTurn.id}.`) }
+
+  let game = await findAvailableGame(player) || await createNewGame();
+  
+  // Create a turn for the player
+  console.log("Creating a new turn")
+  const newTurn = await createNewTurn(game, player);
   return interaction.reply(`Created a new turn ${newTurn.id}.`);
 }
