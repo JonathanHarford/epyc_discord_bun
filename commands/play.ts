@@ -12,7 +12,7 @@ export async function execute(interaction: CommandInteraction) {
 
   const pendingTurn = await findPendingTurn(player);
   if (pendingTurn) {
-    const previousTurn = await getPreviousTurn(pendingTurn.game); // Why does the linter think game might not be defined?
+    const previousTurn = await getPreviousTurn(pendingTurn.game);
     if (!previousTurn) {
       return interaction.reply(`You still need to provide an initiating sentence.`);
     } else if (previousTurn.sentenceTurn) {

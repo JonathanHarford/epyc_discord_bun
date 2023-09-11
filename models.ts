@@ -10,12 +10,15 @@ export const createOrFindPlayer = async (discordId: string): Promise<Player> => 
     });
 }
 
-export const findPendingTurn = async (player: Player): Promise<Turn | null> => {
+export const findPendingTurn = async (player: Player): Promise<Turn & { game: Game } | null> => {
     return prisma.turn.findFirst({
         where: {
             done: false,
             player: player,
-        }
+        },
+        include: {
+            game: true,
+        },
     });
 }
 

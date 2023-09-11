@@ -25,6 +25,7 @@ Consider:
 
 ## STATUS
 
-[x] The bot runs and replies to commands. X
-[x] Let's make it so that `/play` creates a game with a turn. X
+[x] The bot runs and replies to commands.
+[x] Let's make it so that `/play` creates a game with a turn.
 [x] Move the prisma calls to functions. Better yet, models.
+[ ] Update example to make consistent so it can be used for reference.
