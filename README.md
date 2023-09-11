@@ -27,4 +27,4 @@ Consider:
 
 [x] The bot runs and replies to commands. X
 [x] Let's make it so that `/play` creates a game with a turn. X
-[ ] Move the prisma calls to functions. Better yet, models.
+[x] Move the prisma calls to functions. Better yet, models.
