@@ -11,11 +11,13 @@ datasource db {
 }
 
 model Game {
-    id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now()) @db.Timestamptz(6)
-    updatedAt DateTime @updatedAt
-    done      Boolean  @default(false)
-    turns     Turn[]   @relation("GameToTurn")
+    id               Int      @id @default(autoincrement())
+    discordGuildId   String
+    discordChannelId String
+    createdAt        DateTime @default(now()) @db.Timestamptz(6)
+    updatedAt        DateTime @updatedAt
+    done             Boolean  @default(false)
+    turns            Turn[]   @relation("GameToTurn")
 
     @@index([id, done], map: "idx_game")
 }

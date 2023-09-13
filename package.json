@@ -8,6 +8,11 @@
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
+  "scripts": {
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "test": "bun docker:up && bunx prisma migrate deploy && bun test"
+  },
   "dependencies": {
     "@prisma/client": "^5.2.0",
     "discord.js": "^14.13.0",

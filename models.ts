@@ -2,6 +2,8 @@ import { PrismaClient, Game, Turn, Player } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+type TurnWithGame = Turn & { game: Game };
+
 export const createOrFindPlayer = async (discordId: string): Promise<Player> => {
     return prisma.player.upsert({
         where: { discordId: discordId },
@@ -10,7 +12,7 @@ export const createOrFindPlayer = async (discordId: string): Promise<Player> => 
     });
 }
 
-export const findPendingTurn = async (player: Player): Promise<Turn & { game: Game } | null> => {
+export const findPendingTurn = async (player: Player): Promise<TurnWithGame | null> => {
     return prisma.turn.findFirst({
         where: {
             done: false,
@@ -27,19 +29,18 @@ export const findAvailableGame = async (player: Player): Promise<Game | null> =>
         where: {
             done: false,
             turns: {
-                none: {
-                    player: player,
-                },
+                every: { done: true },
+                none: { player: player },
             },
         },
     });
 }
 
-export const createNewGame = async (): Promise<Game> => {
-    return prisma.game.create({ data: {} });
+export const createNewGame = async (discordGuildId: string, discordChannelId: string): Promise<Game> => {
+    return prisma.game.create({ data: { discordGuildId, discordChannelId } });
 }
 
-export const createNewTurn = async (game: Game, player: Player): Promise<Turn> => {
+export const createNewTurn = async (game: Game, player: Player): Promise<TurnWithGame> => {
     return prisma.turn.create({
         data: {
             game: {
@@ -53,10 +54,13 @@ export const createNewTurn = async (game: Game, player: Player): Promise<Turn> =
                 },
             },
         },
+        include: {
+            game: true,
+        },
     });
 }
 
-export const getPreviousTurn = async (game: Game): Promise<Turn | null> => {
+export const getPreviousTurn = async (game: Game): Promise<TurnWithGame | null> => {
     return prisma.turn.findFirst({
         where: {
             game: game,
@@ -64,6 +68,9 @@ export const getPreviousTurn = async (game: Game): Promise<Turn | null> => {
         },
         orderBy: {
             createdAt: "desc",
+        },
+        include: {
+            game: true,
         },
     });
 }
