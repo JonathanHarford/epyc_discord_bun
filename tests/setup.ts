@@ -7,6 +7,7 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 beforeEach(async () => {
+    console.log("Clearing database...");
     await prisma.$executeRaw`DELETE FROM "Turn";`
     await prisma.$executeRaw`DELETE FROM "Player";`
     await prisma.$executeRaw`DELETE FROM "Game";`

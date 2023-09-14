@@ -16,6 +16,8 @@ bun run index.ts
 
 ## TODO
 
+* i18n-node
+
 Consider:
 
 * Do we need a player model?
@@ -28,4 +30,5 @@ Consider:
 [x] The bot runs and replies to commands.
 [x] Let's make it so that `/play` creates a game with a turn.
 [x] Move the prisma calls to functions. Better yet, models.
-[ ] Update example to make consistent so it can be used for reference.
+[x] Update example to make consistent so it can be used for reference.
+[x] Get tests running

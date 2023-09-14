@@ -11,7 +11,7 @@
   "scripts": {
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "test": "bun docker:up && bunx prisma migrate deploy && bun test"
+    "test": "bun docker:up && bunx prisma migrate deploy && bun test --preload ./tests/setup.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.2.0",
