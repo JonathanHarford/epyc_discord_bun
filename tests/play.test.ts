@@ -7,7 +7,7 @@ test("When a user uses /play and there are no games, a new game is started", asy
 await executeCommand({
         commandName: "play",
         user: { id: user_id1 },
-        reply: (message: string) => {
+        reply: (message) => {
             expect(message).toStartWith("You are starting Game #");
             expect(message).toEndWith("You have 00:09:59 to `/submit` an initiating sentence.");
         }
@@ -15,7 +15,7 @@ await executeCommand({
     await executeCommand({
         commandName: "play",
         user: { id: user_id1 },
-        reply: (message: string) => {
+        reply: (message) => {
             expect(message).toEqual("You still have 00:09:59 to `/submit` an initiating sentence.");
         }
     });
@@ -29,7 +29,7 @@ test("When a user uses /play and there is a pending game, a new game is started"
     await executeCommand({
         commandName: "play",
         user: { id: user_id1 },
-        reply: (message: string) => {
+        reply: (message) => {
             expect(message).toStartWith("You are starting Game #");
             expect(message).toEndWith("You have 00:09:59 to `/submit` an initiating sentence.");
         }
@@ -37,7 +37,7 @@ test("When a user uses /play and there is a pending game, a new game is started"
     await executeCommand({
         commandName: "play",
         user: { id: user_id2 },
-        reply: (message: string) => {
+        reply: (message) => {
             expect(message).toStartWith("You are starting Game #");
             expect(message).toEndWith("You have 00:09:59 to `/submit` an initiating sentence.");
         }

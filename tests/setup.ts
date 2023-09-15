@@ -1,5 +1,5 @@
 import { expect, test, beforeEach, afterAll } from "bun:test";
-import { CommandInteraction } from "discord.js";
+import { Message } from "discord.js";
 import { commands } from "../commands";
 
 
@@ -20,7 +20,7 @@ afterAll(async () => {
 export const executeCommand = async (options:
     {
         commandName: keyof typeof commands,
-        reply: (message: string) => void,
+        reply?: (message: string | Message) => void,
         user?: any,
         guildId?: string,
         picture?: string,
@@ -37,6 +37,6 @@ export const executeCommand = async (options:
 
         guildId: options.guildId || 'G' + crypto.randomUUID(),
         channelId: options.guildId || 'C' + crypto.randomUUID(),
-        reply: options.reply,
+        reply: options.reply || ((m) => null),
     } as any);
 }
