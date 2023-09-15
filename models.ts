@@ -74,3 +74,27 @@ export const getPreviousTurn = async (game: Game): Promise<TurnWithGame | null> 
         },
     });
 }
+
+export const finishTurn = async (turn: TurnWithGame, content: string): Promise<TurnWithGame> => {
+    let data;
+    if (turn.sentenceTurn) {
+        data = {
+            sentence: content,
+            done: true
+        };
+    } else {
+        data = {
+            picture: content,
+            done: true
+        }
+    }
+    return prisma.turn.update({
+        where: {
+            id: turn.id,
+        },
+        data: data,
+        include: {
+            game: true,
+        },
+    });
+}

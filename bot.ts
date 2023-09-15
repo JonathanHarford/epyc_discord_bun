@@ -14,11 +14,13 @@ const client = new Client({
         ]
 });
 
-client.once(Events.ClientReady, (c) => {
+client.once(Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
+    // await deployCommands({ guildId: c.guilds.cache.first()?.id || ""  });
 });
 
 client.on("guildCreate", async (guild) => {
+    console.log(`Joined guild ${guild.name} (${guild.id})`);
     await deployCommands({ guildId: guild.id });
 });
 

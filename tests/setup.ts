@@ -17,23 +17,26 @@ afterAll(async () => {
     await prisma.$disconnect()
 })
 
-
-export const interact = (options:
+export const executeCommand = async (options:
     {
-        commandName: string,
+        commandName: keyof typeof commands,
         reply: (message: string) => void,
         user?: any,
         guildId?: string,
+        picture?: string,
+        sentence?: string,
         channelId?: string,
-    }) => {
-    return {
+    }
+) => {
+    return await commands[options.commandName].execute({
         isCommand: () => true,
         commandName: options.commandName,
         user: {
             id: options.user?.id || 'U' + crypto.randomUUID(),
         },
+
         guildId: options.guildId || 'G' + crypto.randomUUID(),
         channelId: options.guildId || 'C' + crypto.randomUUID(),
         reply: options.reply,
-    }
-};
+    } as any);
+}
