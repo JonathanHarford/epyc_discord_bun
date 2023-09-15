@@ -1,0 +1,40 @@
+Tests we need:
+
+STATUS
+
+When no games have been played, /status shows 0 games in progress and no turn pending
+
+When an initiating sentence turn is pending, /status should show "You have ... to `/submit` an initiating sentence."
+
+When a user has submitted in one game that is still active, /status should reply "1 in progress"
+
+When a player has no pending turn, /status should reply "no turn pending."
+
+SUBMIT
+
+When a sentence is /submit successfully to a pending turn, the reply should say "Thanks, I'll let you know when Game #... is complete."
+
+When a picture is /submit successfully to a pending turn, the reply should say "Thanks, I'll let you know when Game #... is complete."
+
+When a player submits a turn when they don't have one pending, the reply should be "I'm not waiting on a turn from you!"
+
+When a player submits a sentence to a pending picture turn, the reply is "You have ... to `/submit` a picture (not a sentence) that illustrates this: [previous turn's sentence]"
+
+When a player submits a file that is not JPG ro PNG to a pending picture turn, the reply is "You have ... to `/submit` a picture (JPG or PNG) that illustrates this: [previous turn's sentence]"
+
+When a player submits a small picture to a pending picture turn, the reply is "You have ... to `/submit` a picture (larger than 200x200) that illustrates this: [previous turn's sentence]"
+
+When a player submits a picture to a pending sentence turn, the reply is "You have ... to `/submit` a sentence or two (not a picture) that describes this: [previous turn's picture]
+
+PLAY
+
+When a player uses /play and there is an available game whose last turn is a sentence, they get assigned a pending picture turn and see the reply, "You have ... to `/submit` a picture that illustrates this: [previous turn's sentence]"
+
+When a player uses `/play` and there are multiple available games, they get assigned to the most stale one.
+
+
+
+
+When a week passes since a turn has been played in a game and the game is longer than 3 turns, the game gets posted to #epyc.
+
+When a player has a pending turn and the turn times out, they should receive a PM: "Your turn has timed out. Use `/play` to play."
