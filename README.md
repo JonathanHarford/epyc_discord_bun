@@ -20,9 +20,7 @@ bun run index.ts
 
 Consider:
 
-* Do we need a player model?
 * How do we keep one player from initiating lots of games?
-* status should say if turn is pending (put in script)
 * 
 
 

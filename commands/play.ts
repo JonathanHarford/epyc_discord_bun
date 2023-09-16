@@ -2,6 +2,8 @@ import { CommandInteraction, SlashCommandBuilder, MessagePayload, MessageTarget 
 import { createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn, findPendingTurn, getPreviousTurn } from "../models";
 import { config } from "../config";
 import { countdown } from "../utils";
+import { Media } from '@prisma/client'
+
 
 export const data = new SlashCommandBuilder()
   .setName("play")
@@ -55,7 +57,7 @@ export async function execute(interaction: CommandInteraction) {
       return interaction.reply(`You have ${countdown(timeRemaining)} to \`/submit\` a picture that illustrates, "${previousTurn.sentence}".`);
     }
   }
-  
+
   // Otherwise, create a new game
   game = await createNewGame(interaction.guildId!, interaction.channelId!);
   pendingTurn = await createNewTurn(game, player);

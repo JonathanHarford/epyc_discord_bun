@@ -1,4 +1,4 @@
-import { PrismaClient, Game, Turn, Player } from '@prisma/client'
+import { PrismaClient, Game, Turn, Player, Media } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -75,24 +75,42 @@ export const getPreviousTurn = async (game: Game): Promise<TurnWithGame | null> 
     });
 }
 
-export const finishTurn = async (turn: TurnWithGame, content: string): Promise<TurnWithGame> => {
-    let data;
-    if (turn.sentenceTurn) {
-        data = {
-            sentence: content,
-            done: true
-        };
-    } else {
-        data = {
-            picture: content,
-            done: true
-        }
-    }
+export const finishSentenceTurn = async (turn: TurnWithGame, sentence: string): Promise<TurnWithGame> => {
     return prisma.turn.update({
         where: {
             id: turn.id,
         },
-        data: data,
+        data: {
+            sentence: sentence,
+            done: true
+        },
+        include: {
+            game: true,
+        },
+    });
+}
+
+export const finishMediaTurn = async (turn: TurnWithGame, contentInput: Media): Promise<TurnWithGame> => {
+    const media = await prisma.media.create({
+        data: {
+            turn: {
+                connect: {
+                    id: turn.id,
+                },
+            },
+            url: contentInput.url,
+            contentType: contentInput.contentType,
+            content: contentInput.content,
+        },
+    });
+    return prisma.turn.update({
+        where: {
+            id: turn.id,
+        },
+        data: {
+            media: media,
+            done: true
+        },
         include: {
             game: true,
         },

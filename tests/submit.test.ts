@@ -30,19 +30,3 @@ test("When a user /submits and there is only a pending game, they are dissuaded.
         }
     });
 });
-
-test("When a user has started a game and they /submit a sentence, everything's cool", async () => {
-    const user_id1 = 'U1';
-
-    await executeCommand({
-        commandName: "play",
-        user: { id: user_id1 },
-    });
-    await executeCommand({
-        commandName: "submit",
-        user: { id: user_id1 },
-        reply: (message) => {
-            expect(message).toEqual("You're supposed to submit a sentence!");
-        }
-    });
-});

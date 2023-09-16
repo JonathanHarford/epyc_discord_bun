@@ -1,5 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder, MessagePayload, MessageTarget } from "discord.js";
-import { createOrFindPlayer, findPendingTurn, getPreviousTurn, finishTurn } from "../models";
+import { createOrFindPlayer, findPendingTurn, getPreviousTurn, finishSentenceTurn, finishMediaTurn } from "../models";
 
 export const data = new SlashCommandBuilder()
     .setName("submit")
@@ -21,7 +21,7 @@ export async function execute(interaction: CommandInteraction) {
     const game = pendingTurn.game;
     if (pendingTurn.sentenceTurn)  {
         // If the pending turn is a sentence and they sent a picture, correct them
-        const picture = interaction.options.get("picture")
+        const picture = interaction.options?.get("picture")?.attachment;
         if (picture) {
             return interaction.reply(`You're supposed to submit a sentence!`);
         }
@@ -31,7 +31,7 @@ export async function execute(interaction: CommandInteraction) {
             return interaction.reply(`You're supposed to submit a sentence!`);
         }
         // Update the turn
-        await finishTurn(pendingTurn, sentence);
+        await finishSentenceTurn(pendingTurn, sentence);
     }
 
     if (!pendingTurn.sentenceTurn) {
@@ -40,9 +40,18 @@ export async function execute(interaction: CommandInteraction) {
         if (!pendingTurn.sentenceTurn && interaction.options.get("sentence")) {
             return interaction.reply(`You're supposed to submit a picture!`);
         }
-        const picture = interaction.options.get("picture")?.value as string;
+        const attachment = interaction.options?.get("picture")?.attachment;
+        if (!attachment) {
+            return interaction.reply(`You're supposed to submit a picture!`);
+        }
+        // Get binary data from attachment.url
+        const binaryData = await fetch(attachment.url).then(res => res.arrayBuffer());
         // Update the turn
-        await finishTurn(pendingTurn, picture);
+        await finishMediaTurn(pendingTurn, {
+            url: attachment.url,
+            contentType: attachment.contentType,
+            contentInput: binaryData,
+        });
     }
     return interaction.reply(`Thanks, I'll let you know when Game #${pendingTurn.game.id} is complete.`);
 }
