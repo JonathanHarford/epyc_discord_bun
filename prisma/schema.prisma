@@ -61,34 +61,3 @@ model Player {
   discordId String   @unique
   turns     Turn[]
 }
-
-// CREATE OR REPLACE FUNCTION update_row_modified_function_()
-//   RETURNS TRIGGER
-// AS
-// $$
-//   BEGIN
-//     -- ASSUMES the table has a column named exactly "m_at".
-//     -- Fetch date-time of actual current moment from clock, rather than start of statement or start of transaction.
-//     NEW.m_at = clock_timestamp();
-//     RETURN NEW;
-//   END;
-// $$
-// LANGUAGE 'plpgsql';
-
-// CREATE TRIGGER row_mod_on_player_trigger_
-//   BEFORE UPDATE
-//   ON player
-//   FOR EACH ROW
-//     EXECUTE PROCEDURE update_row_modified_function_();
-
-// CREATE TRIGGER row_mod_on_game_trigger_
-//   BEFORE UPDATE
-//   ON game
-//   FOR EACH ROW
-//     EXECUTE PROCEDURE update_row_modified_function_();
-
-// CREATE TRIGGER row_mod_on_turn_trigger_
-//   BEFORE UPDATE
-//   ON turn
-//   FOR EACH ROW
-//     EXECUTE PROCEDURE update_row_modified_function_();

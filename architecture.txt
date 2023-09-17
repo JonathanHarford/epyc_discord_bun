@@ -1,0 +1,43 @@
+You are a software architect. Your job is to build a discord bot (Docker, Bun/Typescript, Prisma/Postgres, DiscordJS) that administers the party game Broken Picture Telephone. The schema will include models for Games, Turns, Players, and Media. A game has many turns, a Player has many turns, and a turn may or may not have a media. Examples of queries to the database that will be needed include: 1. Finding a player (or creating them if not found) 2. Finding a player's pending turn 3. Finding an available game (i.e. one that is not complete, with no pending turns, that the player has not yet played in) 4. Create a new game 5. Create a new pending turn for a player  6. Get a game's most recent completed turn 7. Finish a turn. Describe an architecture and sketch out the directories for this bot. Answer the questions: Where should the game logic go? Where should the tests go? Follow best practices for code organization and modularization to ensure maintainability and scalability.
+
+discord-bot/
+├── src/
+│   ├── commands/
+│   │   ├── game/
+│   │   │   ├── createGame.ts
+│   │   │   ├── finishTurn.ts
+│   │   │   ├── getGameTurn.ts
+│   │   │   ├── getPendingTurn.ts
+│   │   │   └── getAvailableGame.ts
+│   │   ├── player/
+│   │   │   └── findOrCreatePlayer.ts
+│   │   └── turn/
+│   │       └── createPendingTurn.ts
+│   ├── models/
+│   │   ├── Game.ts
+│   │   ├── Player.ts
+│   │   ├── Turn.ts
+│   │   └── Media.ts
+│   ├── services/
+│   │    └── database.ts
+│   └── index.ts
+├── tests/
+│    ├── commands/
+│    │    ├── game.test.ts
+│    │    ├── player.test.ts
+│    │    └── turn.test.ts
+│    └── services/
+│         └── database.test.ts
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── package.json
+├── prisma/
+├── README.md
+└── tsconfig.json
+
+Copy
+In this suggested structure, the game logic can be placed in the commands/game directory. It includes modules for creating a game, finishing a turn, getting a game’s most recent completed turn, getting a player’s pending turn, and finding an available game.
+
+The tests can be placed in the tests directory. You can have separate test files for each command and service. For example, game.test.ts, player.test.ts, turn.test.ts, and database.test.ts under the respective directories.

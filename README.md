@@ -33,8 +33,8 @@ Consider:
 [x] Update example to make consistent so it can be used for reference.
 [x] Get tests running
 [x] Write down descriptions of all the tests we think we might need
-[ ] Fix picture turns -- store pics in DB
-  [ ] Make a Media type instead of stretching out Turn 
+[x] Fix picture turns -- store pics in DB
+[ ] Refactor
 
 ## NOTES
 

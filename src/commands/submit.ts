@@ -16,17 +16,21 @@ export async function execute(interaction: CommandInteraction) {
 
     // If they don't, dissuade them
     if (!pendingTurn) {
+        console.log("No pending turn found...");
         return interaction.reply(`I'm not waiting on a turn from you!`);
     }
     const game = pendingTurn.game;
     if (pendingTurn.sentenceTurn)  {
+        console.log("Found a pending sentence turn...");
+
         // If the pending turn is a sentence and they sent a picture, correct them
         const picture = interaction.options?.get("picture")?.attachment;
+        console.log(interaction); 
         if (picture) {
             return interaction.reply(`You're supposed to submit a sentence!`);
         }
         // If the sentence is empty, correct them
-        const sentence = interaction.options.get("sentence")?.value as string;
+        const sentence = interaction.options?.get("sentence")?.value as string;
         if (!sentence) {
             return interaction.reply(`You're supposed to submit a sentence!`);
         }
@@ -35,9 +39,10 @@ export async function execute(interaction: CommandInteraction) {
     }
 
     if (!pendingTurn.sentenceTurn) {
-  
+        console.log("Found a pending picture turn...");
+        
         // If the pending turn is a picture and they sent a sentence, correct them
-        if (!pendingTurn.sentenceTurn && interaction.options.get("sentence")) {
+        if (interaction.options.get("sentence")) {
             return interaction.reply(`You're supposed to submit a picture!`);
         }
         const attachment = interaction.options?.get("picture")?.attachment;

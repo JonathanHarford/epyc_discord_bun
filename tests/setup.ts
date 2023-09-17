@@ -1,6 +1,6 @@
 import { expect, test, beforeEach, afterAll } from "bun:test";
 import { Message } from "discord.js";
-import { commands } from "../commands";
+import { commands } from "../src/commands";
 
 
 const { PrismaClient } = require('@prisma/client')
@@ -20,7 +20,7 @@ afterAll(async () => {
 export const executeCommand = async (options:
     {
         commandName: keyof typeof commands,
-        reply?: (message: string | Message) => void,
+        reply: (message: string | Message) => void,
         user?: any,
         guildId?: string,
         picture?: string,
