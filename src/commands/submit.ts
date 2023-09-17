@@ -1,5 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder, MessagePayload, MessageTarget } from "discord.js";
-import { createOrFindPlayer, findPendingTurn, getPreviousTurn, finishSentenceTurn, finishMediaTurn } from "../models";
+import { createOrFindPlayer, findPendingTurn, getPreviousTurn, finishSentenceTurn, finishMediaTurn } from "../db";
 
 export const data = new SlashCommandBuilder()
     .setName("submit")

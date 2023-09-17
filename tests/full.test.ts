@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { executeCommand } from "./setup";
-import { PrismaClient, Game, Turn, Player, Media } from '@prisma/client'
+import { Game, Player } from '../src/db'
 
 const aliceDiscordId = "alice";
 const bobDiscordId = "bob";

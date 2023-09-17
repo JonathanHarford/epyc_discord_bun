@@ -1,8 +1,8 @@
 import { CommandInteraction, SlashCommandBuilder, MessagePayload, MessageTarget } from "discord.js";
-import { createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn, findPendingTurn, getPreviousTurn } from "../models";
+import { createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn, findPendingTurn, getPreviousTurn } from "../db";
 import { config } from "../config";
 import { countdown } from "../../utils";
-import { Media } from '@prisma/client'
+import { Media } from '../db';
 
 
 export const data = new SlashCommandBuilder()

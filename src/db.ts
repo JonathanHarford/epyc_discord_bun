@@ -1,8 +1,11 @@
-import { PrismaClient, Game, Turn, Player, Media } from '@prisma/client'
+import { PrismaClient, Game as pcGame, Turn as pcTurn, Player as pcPlayer, Media as pcMedia} from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-type TurnWithGame = Turn & { game: Game };
+export type TurnWithGame = pcTurn & { game: Game };
+export type Game = pcGame;
+export type Player = pcPlayer;
+export type Media = pcMedia;
 
 export const createOrFindPlayer = async (discordId: string): Promise<Player> => {
     return prisma.player.upsert({
