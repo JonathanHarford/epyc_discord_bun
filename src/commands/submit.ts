@@ -15,6 +15,9 @@ export const data = {
     }
 }
 
+// const handleSentenceTurn = async (interaction: CommandInteraction): Promise<Message> => {
+// }
+
 export const execute = async (interaction: CommandInteraction): Promise<Message> => {
     const user = interaction.user;
     const player = await createOrFindPlayer(user.id);
@@ -26,46 +29,47 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
         console.log("No pending turn found...");
         return { description: `I'm not waiting on a turn from you!` };
     }
-    const game = pendingTurn.game;
+    const picture = interaction.options?.get("picture")?.attachment;
+    const sentence = interaction.options?.get("sentence")?.value as string;
     if (pendingTurn.sentenceTurn) {
         console.log("Found a pending sentence turn...");
 
         // If the pending turn is a sentence and they sent a picture, correct them
-        const picture = interaction.options?.get("picture")?.attachment;
         if (picture) {
             console.log("...but they sent a picture!");
             return { description: `You're supposed to submit a sentence!` };
         }
         // If the sentence is empty, correct them
-        const sentence = interaction.options?.get("sentence")?.value as string;
         if (!sentence) {
             console.log("...but they sent an empty sentence!");
             return { description: `You're supposed to submit a sentence!` };
         }
         // Update the turn
-        await finishSentenceTurn(pendingTurn, sentence);
+        await finishSentenceTurn(pendingTurn.id, sentence);
     }
 
     if (!pendingTurn.sentenceTurn) {
         console.log("Found a pending picture turn...");
 
         // If the pending turn is a picture and they sent a sentence, correct them
-        if (interaction.options.get("sentence")) {
+        if (sentence) {
             console.log("...but they sent a sentence!");
             return { description: `You're supposed to submit a picture!` };
         }
-        const attachment = interaction.options?.get("picture")?.attachment;
-        if (!attachment) {
+        if (!picture || !picture.url || !picture.contentType) {
             console.log("...but they didn't send a picture!");
             return { description: `You're supposed to submit a picture!` };
         }
-        // Get binary data from attachment.url
-        const binaryData = await fetch(attachment.url).then(res => res.arrayBuffer());
+
+        const buffer = await fetch(picture.url)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => Buffer.from(arrayBuffer));
+
         // Update the turn
-        await finishMediaTurn(pendingTurn, {
-            url: attachment.url,
-            contentType: attachment.contentType,
-            contentInput: binaryData,
+        await finishMediaTurn(pendingTurn.id, {
+            url: picture.url,
+            contentType: picture.contentType,
+            content: buffer,
         });
     }
 

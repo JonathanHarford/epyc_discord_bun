@@ -35,6 +35,7 @@ Consider:
 [x] Write down descriptions of all the tests we think we might need
 [x] Fix picture turns -- store pics in DB
 [x] Refactor submit to not interact with discord directly
+[x] Write more test
 
 
 ## NOTES

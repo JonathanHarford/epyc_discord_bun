@@ -78,10 +78,10 @@ export const getPreviousTurn = async (game: Game): Promise<TurnWithGame | null> 
     });
 }
 
-export const finishSentenceTurn = async (turn: TurnWithGame, sentence: string): Promise<TurnWithGame> => {
+export const finishSentenceTurn = async (turnId: number, sentence: string): Promise<TurnWithGame> => {
     return prisma.turn.update({
         where: {
-            id: turn.id,
+            id: turnId,
         },
         data: {
             sentence: sentence,
@@ -93,12 +93,18 @@ export const finishSentenceTurn = async (turn: TurnWithGame, sentence: string): 
     });
 }
 
-export const finishMediaTurn = async (turn: TurnWithGame, contentInput: Media): Promise<TurnWithGame> => {
+interface MediaInput {
+    url: string,
+    contentType: string,
+    content: Buffer,
+}
+
+export const finishMediaTurn = async (turnId: number, contentInput: MediaInput): Promise<TurnWithGame> => {
     const media = await prisma.media.create({
         data: {
             Turn: {
                 connect: {
-                    id: turn.id,
+                    id: turnId,
                 },
             },
             url: contentInput.url,
@@ -108,14 +114,9 @@ export const finishMediaTurn = async (turn: TurnWithGame, contentInput: Media): 
     });
     return prisma.turn.update({
         where: {
-            id: turn.id,
+            id: turnId,
         },
         data: {
-            media: {
-                connect: {
-                  id: media.id,
-                },
-              },
             done: true
         },
         include: {
