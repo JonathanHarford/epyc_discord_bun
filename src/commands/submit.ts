@@ -37,8 +37,8 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
 
         // If the pending turn is a sentence and they sent a picture, correct them
         const picture = interaction.options?.get("picture")?.attachment;
-        console.log(interaction);
         if (picture) {
+            console.log("...but they sent a picture!");
             return {
                 title: null,
                 description: `You're supposed to submit a sentence!`,
@@ -48,6 +48,7 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
         // If the sentence is empty, correct them
         const sentence = interaction.options?.get("sentence")?.value as string;
         if (!sentence) {
+            console.log("...but they sent an empty sentence!");
             return {
                 title: null,
                 description: `You're supposed to submit a sentence!`,
@@ -63,6 +64,7 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
 
         // If the pending turn is a picture and they sent a sentence, correct them
         if (interaction.options.get("sentence")) {
+            console.log("...but they sent a sentence!");
             return {
                 title: null,
                 description: `You're supposed to submit a picture!`,
@@ -71,6 +73,7 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
         }
         const attachment = interaction.options?.get("picture")?.attachment;
         if (!attachment) {
+            console.log("...but they didn't send a picture!");
             return {
                 title: null,
                 description: `You're supposed to submit a picture!`,
