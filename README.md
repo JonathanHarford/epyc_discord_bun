@@ -34,7 +34,8 @@ Consider:
 [x] Get tests running
 [x] Write down descriptions of all the tests we think we might need
 [x] Fix picture turns -- store pics in DB
-[ ] Refactor
+[x] Refactor submit to not interact with discord directly
+
 
 ## NOTES
 

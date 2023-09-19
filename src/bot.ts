@@ -2,7 +2,7 @@ import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy_commands";
-
+import { DiscordService } from './channels/discordChannel';
 
 // create a new Client instance
 const client = new Client({
@@ -13,6 +13,8 @@ const client = new Client({
             GatewayIntentBits.DirectMessages,
         ]
 });
+
+const channel = new DiscordService(client);
 
 client.once(Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
@@ -30,8 +32,11 @@ client.on("interactionCreate", async (interaction) => {
     }
     const { commandName } = interaction;
     if (commands[commandName as keyof typeof commands]) {
-        commands[commandName as keyof typeof commands].execute(interaction);
+        const command = commands[commandName as keyof typeof commands];
+        const message = await command.execute(interaction);
+        channel.replyToCommand(interaction, message);
     }
+
 });
 
 client.login(config.DISCORD_TOKEN);

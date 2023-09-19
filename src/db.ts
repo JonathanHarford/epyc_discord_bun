@@ -2,7 +2,7 @@ import { PrismaClient, Game as pcGame, Turn as pcTurn, Player as pcPlayer, Media
 
 const prisma = new PrismaClient()
 
-export type TurnWithGame = pcTurn & { game: Game };
+export type TurnWithGame = pcTurn & { game: Game, media?: Media };
 export type Game = pcGame;
 export type Player = pcPlayer;
 export type Media = pcMedia;
