@@ -96,7 +96,7 @@ export const finishSentenceTurn = async (turn: TurnWithGame, sentence: string): 
 export const finishMediaTurn = async (turn: TurnWithGame, contentInput: Media): Promise<TurnWithGame> => {
     const media = await prisma.media.create({
         data: {
-            turn: {
+            Turn: {
                 connect: {
                     id: turn.id,
                 },
@@ -111,11 +111,16 @@ export const finishMediaTurn = async (turn: TurnWithGame, contentInput: Media): 
             id: turn.id,
         },
         data: {
-            media: media,
+            media: {
+                connect: {
+                  id: media.id,
+                },
+              },
             done: true
         },
         include: {
             game: true,
+            media: true,
         },
-    });
+    }) as Promise<TurnWithGame>;
 }
