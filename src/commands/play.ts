@@ -12,14 +12,13 @@ export const data = {
 }
 
 export const execute = async (interaction: CommandInteraction): Promise<Message> => {
-  let title, description, imageUrl;
+  let title = "Eat Poop You Cat!", description, imageUrl;
   const user = interaction.user;
   const player = await createOrFindPlayer(user.id);
-  let game;
 
   // Check if the player has a pending turn
   let pendingTurn = await findPendingTurn(player);
-  game = pendingTurn?.game || await findAvailableGame(player) || await createNewGame(interaction.guildId!, interaction.channelId!);
+  const game = pendingTurn?.game || await findAvailableGame(player) || await createNewGame(interaction.guildId!, interaction.channelId!);
 
   pendingTurn = pendingTurn || await createNewTurn(game, player);
 
@@ -43,9 +42,5 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
     const timeRemaining = pendingTurn.createdAt.getTime() + config.PICTURE_TIMEOUT * 60 * 1000 - Date.now();
     description = `You have ${countdown(timeRemaining)} to \`/submit\` a picture that illustrates, "${previousTurn.sentence}".`;
   }
-  return {
-    title: "Eat Poop You Cat!",
-    description: description,
-    imageUrl: imageUrl || null, // TODO should this be undefined?
-  }
+  return { title, description, imageUrl }
 }

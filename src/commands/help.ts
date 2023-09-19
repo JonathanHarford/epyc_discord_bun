@@ -10,6 +10,6 @@ export const execute = async (): Promise<Message> => {
 	return {
 		title: "How to play Eat Poop You Cat",
 		description: helpDescription,
-		imageUrl: "https://i.imgur.com/4jyXU7D.png",
+		imageUrl: "https://i.imgur.com/ipoiOMF.jpeg",
 	}
 }

@@ -6,16 +6,19 @@ interface ChatService {
 }
 
 export interface Message {
-  title: string | null;
+  title?: string;
   description: string;
-  imageUrl: string | null;
+  imageUrl?: string;
 }
 
 const message2Embeds = (message: Message): Discord.EmbedBuilder[] => {
-  const embeds = new Discord.EmbedBuilder()
-    .setTitle(message.title)
-    .setDescription(message.description)
-    .setImage(message.imageUrl);
+  const embeds = new Discord.EmbedBuilder().setDescription(message.description)
+  if (message.title) {
+    embeds.setTitle(message.title);
+  } 
+  if (message.imageUrl) {
+    embeds.setImage(message.imageUrl);
+  }
   return [embeds];
 }
 
@@ -29,7 +32,7 @@ export class DiscordService implements ChatService {
   }
 
   async replyToCommand(interaction: Discord.CommandInteraction, message: Message): Promise<void> {
-    interaction.reply({
+        interaction.reply({
       embeds: message2Embeds(message),
       ephemeral: true,
     })

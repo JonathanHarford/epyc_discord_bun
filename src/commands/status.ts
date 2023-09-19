@@ -9,6 +9,6 @@ export const execute = async (): Promise<Message> => {
 	return {
 		title: "Eat Poop You Cat!",
 		description: "Status Decription TK TODO",
-		imageUrl: "https://i.imgur.com/AfFp7pu.png",
+		imageUrl: "https://i.imgur.com/oM0hxVC.jpeg",
 	}
 }

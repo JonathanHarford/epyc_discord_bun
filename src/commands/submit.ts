@@ -18,18 +18,13 @@ export const data = {
 export const execute = async (interaction: CommandInteraction): Promise<Message> => {
     const user = interaction.user;
     const player = await createOrFindPlayer(user.id);
-    let description;
     // Check if the player has a pending turn
     let pendingTurn = await findPendingTurn(player);
 
     // If they don't, dissuade them
     if (!pendingTurn) {
         console.log("No pending turn found...");
-        return {
-            title: null,
-            description: `I'm not waiting on a turn from you!`,
-            imageUrl: null,
-        };
+        return { description: `I'm not waiting on a turn from you!` };
     }
     const game = pendingTurn.game;
     if (pendingTurn.sentenceTurn) {
@@ -39,21 +34,13 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
         const picture = interaction.options?.get("picture")?.attachment;
         if (picture) {
             console.log("...but they sent a picture!");
-            return {
-                title: null,
-                description: `You're supposed to submit a sentence!`,
-                imageUrl: null,
-            };
+            return { description: `You're supposed to submit a sentence!` };
         }
         // If the sentence is empty, correct them
         const sentence = interaction.options?.get("sentence")?.value as string;
         if (!sentence) {
             console.log("...but they sent an empty sentence!");
-            return {
-                title: null,
-                description: `You're supposed to submit a sentence!`,
-                imageUrl: null,
-            };
+            return { description: `You're supposed to submit a sentence!` };
         }
         // Update the turn
         await finishSentenceTurn(pendingTurn, sentence);
@@ -65,20 +52,12 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
         // If the pending turn is a picture and they sent a sentence, correct them
         if (interaction.options.get("sentence")) {
             console.log("...but they sent a sentence!");
-            return {
-                title: null,
-                description: `You're supposed to submit a picture!`,
-                imageUrl: null,
-            };
+            return { description: `You're supposed to submit a picture!` };
         }
         const attachment = interaction.options?.get("picture")?.attachment;
         if (!attachment) {
             console.log("...but they didn't send a picture!");
-            return {
-                title: null,
-                description: `You're supposed to submit a picture!`,
-                imageUrl: null,
-            };
+            return { description: `You're supposed to submit a picture!` };
         }
         // Get binary data from attachment.url
         const binaryData = await fetch(attachment.url).then(res => res.arrayBuffer());
@@ -90,9 +69,5 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
         });
     }
 
-    return {
-        title: null,
-        description: `Thanks, I'll let you know when Game #${pendingTurn.game.id} is complete.`,
-        imageUrl: null,
-    };
+    return { description: `Thanks, I'll let you know when Game #${pendingTurn.game.id} is complete.` };
 }
