@@ -9,6 +9,8 @@ export interface Interaction {
   userId: string;
   serverId?: string;
   channelId: string;
+  turnId?: string;
+  gameId?: string;
   picture?: {
     url: string,
     contentType: string,

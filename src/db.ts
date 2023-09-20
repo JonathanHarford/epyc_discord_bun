@@ -1,4 +1,5 @@
 import { PrismaClient, Game as pcGame, Turn as pcTurn, Player as pcPlayer, Media as pcMedia} from '@prisma/client'
+import { MediaInput } from './types';
 
 const prisma = new PrismaClient()
 
@@ -93,12 +94,6 @@ export const finishSentenceTurn = async (turnId: number, sentence: string): Prom
     });
 }
 
-interface MediaInput {
-    url: string,
-    contentType: string,
-    content: Buffer,
-}
-
 export const finishMediaTurn = async (turnId: number, contentInput: MediaInput): Promise<TurnWithGame> => {
     const media = await prisma.media.create({
         data: {
@@ -124,4 +119,30 @@ export const finishMediaTurn = async (turnId: number, contentInput: MediaInput):
             media: true,
         },
     }) as Promise<TurnWithGame>;
+}
+
+export const getStats = async (player: Player): Promise<{ inProgress: number, yoursDone: number, yoursInProgress: number }> => {
+    const inProgress = await prisma.game.count({
+        where: {
+            done: false,
+        },
+    });
+    const yoursDone = await prisma.game.count({
+        where: {
+            done: true,
+            turns: {
+                every: { done: true },
+                some: { player: player },
+            },
+        },
+    });
+    const yoursInProgress = await prisma.game.count({
+        where: {
+            done: false,
+            turns: {
+                some: { player: player },
+            },
+        },
+    });
+    return { inProgress, yoursDone, yoursInProgress };
 }

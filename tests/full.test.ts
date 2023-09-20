@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { commands } from "../src/commands";
 import { Game, Player } from '../src/db'
 import { Message } from "../src/channels/discordChannel";
+import { MediaInput } from "../src/types";
 
 
 const channelId = "channel";
@@ -10,30 +11,7 @@ const aliceDiscordId = "alice";
 const bobDiscordId = "bob";
 const carolDiscordId = "carol";
 const dmitriDiscordId = "dmitri";
-let alice, bob, carol, dmitri: Player;
 let game1, game2, game3: Game;
-
-
-
-
-
-// const executeSubmitPicture = async (options:
-//     {
-//         discordUserId: string,
-//         picture: string,
-//         reply?: (message: string | Message) => void,
-//     }) => {
-//     const { discordUserId, picture, reply } = options;
-//     return executeCommand({
-//         commandName: "submit",
-//         user: { id: discordUserId },
-//         picture: picture,
-//         reply: reply || ((message) => {
-//             expect(message).toStartWith(`Thanks, I'll let you know when Game`);
-//         })
-//     })
-// };
-
 
 
 const executeHelp = async (userId: string) => {
@@ -51,13 +29,27 @@ const executeStatus = async (options:
         yoursDone: number,
         yoursInProgress: number,
         timeString?: string,
+        previousPicture?: MediaInput,
+        previousSentence?: string,
+
     }) => {
-    const { discordUserId, inProgress, yoursDone, yoursInProgress, timeString } = options;
+    const { discordUserId, inProgress, yoursDone, yoursInProgress, timeString, previousPicture, previousSentence } = options;
     const message = await commands.status.execute({ userId: discordUserId, channelId });
     const { title, description, imageUrl } = message;
-    // TODO: expectations!
+    expect(description).toEqual(`Games in progress: ${inProgress}. Yours: ${yoursDone} done, ${yoursInProgress} in progress.`);
+
+    // TODO
+    // if (previousPicture) {
+    //     expect(description).toContain("sentence");
+    //     expect(imageUrl).toEqual(previousPicture.url);
+    // } else if (previousSentence) {
+    //     expect(description).toContain("picture");
+    // } else {
+    //     expect(description).toContain("initiating sentence");
+    // }
     return message;
 }
+
 
 const executeSubmitSentence = async (options:
     {
@@ -67,6 +59,21 @@ const executeSubmitSentence = async (options:
     }) => {
     let { discordUserId, sentence, reply } = options;
     const message = await commands.submit.execute({ userId: discordUserId, channelId, sentence });
+    reply ||= ((message) => {
+        expect(message.description).toStartWith(`Thanks, I'll let you know when Game`);
+    })
+    reply(message);
+    return message;
+}
+
+const executeSubmitPicture = async (options:
+    {
+        discordUserId: string,
+        picture: MediaInput,
+        reply?: (message: Message) => void,
+    }) => {
+    let { discordUserId, picture, reply } = options;
+    const message = await commands.submit.execute({ userId: discordUserId, channelId, picture });
     reply ||= ((message) => {
         expect(message.description).toStartWith(`Thanks, I'll let you know when Game`);
     })
@@ -101,8 +108,7 @@ test("A full game", async () => {
         discordUserId: aliceDiscordId,
         inProgress: 0,
         yoursDone: 0,
-        yoursInProgress: 0,
-        timeString: "00:09:59"
+        yoursInProgress: 0
     });
 
     await executeSubmitSentence({
@@ -118,13 +124,13 @@ test("A full game", async () => {
         timeString: "00:09:59"}
     );
 
-    // await executeStatus({
-    //     discordUserId: aliceDiscordId,
-    //     inProgress: 1,
-    //     yoursDone: 0,
-    //     yoursInProgress: 1,
-    //     timeString: "00:09:59"
-    // });
+    await executeStatus({
+        discordUserId: aliceDiscordId,
+        inProgress: 1,
+        yoursDone: 0,
+        yoursInProgress: 1,
+        timeString: "00:09:59",
+    });
 
     await executeSubmitSentence({
         discordUserId: aliceDiscordId,
