@@ -7,11 +7,11 @@ export type Game = pcGame;
 export type Player = pcPlayer;
 export type Media = pcMedia;
 
-export const createOrFindPlayer = async (discordId: string): Promise<Player> => {
+export const createOrFindPlayer = async (discordUserId: string): Promise<Player> => {
     return prisma.player.upsert({
-        where: { discordId: discordId },
+        where: { discordUserId: discordUserId },
         update: {},
-        create: { discordId: discordId },
+        create: { discordUserId: discordUserId },
     });
 }
 

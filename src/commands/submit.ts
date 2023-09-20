@@ -1,6 +1,5 @@
-import { CommandInteraction } from "discord.js";
 import { createOrFindPlayer, findPendingTurn, getPreviousTurn, finishSentenceTurn, finishMediaTurn } from "../db";
-import { Message } from "../channels/discordChannel"
+import { Interaction, Message } from "../channels/discordChannel"
 
 export const data = {
     name: "submit",
@@ -15,12 +14,9 @@ export const data = {
     }
 }
 
-// const handleSentenceTurn = async (interaction: CommandInteraction): Promise<Message> => {
-// }
-
-export const execute = async (interaction: CommandInteraction): Promise<Message> => {
-    const user = interaction.user;
-    const player = await createOrFindPlayer(user.id);
+export const execute = async (interaction: Interaction): Promise<Message> => {
+    const { userId, sentence, picture } = interaction;
+    const player = await createOrFindPlayer(userId);
     // Check if the player has a pending turn
     let pendingTurn = await findPendingTurn(player);
 
@@ -29,8 +25,7 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
         console.log("No pending turn found...");
         return { description: `I'm not waiting on a turn from you!` };
     }
-    const picture = interaction.options?.get("picture")?.attachment;
-    const sentence = interaction.options?.get("sentence")?.value as string;
+
     if (pendingTurn.sentenceTurn) {
         console.log("Found a pending sentence turn...");
 
@@ -56,21 +51,12 @@ export const execute = async (interaction: CommandInteraction): Promise<Message>
             console.log("...but they sent a sentence!");
             return { description: `You're supposed to submit a picture!` };
         }
-        if (!picture || !picture.url || !picture.contentType) {
+        if (!picture) {
             console.log("...but they didn't send a picture!");
             return { description: `You're supposed to submit a picture!` };
         }
-
-        const buffer = await fetch(picture.url)
-            .then(response => response.arrayBuffer())
-            .then(arrayBuffer => Buffer.from(arrayBuffer));
-
         // Update the turn
-        await finishMediaTurn(pendingTurn.id, {
-            url: picture.url,
-            contentType: picture.contentType,
-            content: buffer,
-        });
+        await finishMediaTurn(pendingTurn.id, picture);
     }
 
     return { description: `Thanks, I'll let you know when Game #${pendingTurn.game.id} is complete.` };

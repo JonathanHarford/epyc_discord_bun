@@ -3,7 +3,7 @@ import { createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn, fi
 import { config } from "../config";
 import { countdown } from "../../utils";
 import { Media } from '../db';
-import { Message } from "../channels/discordChannel"
+import { Interaction, Message } from "../channels/discordChannel"
 
 
 export const data = {
@@ -11,14 +11,13 @@ export const data = {
   description: "Initiate a turn in a game of Eat Poop You Cat.",
 }
 
-export const execute = async (interaction: CommandInteraction): Promise<Message> => {
+export const execute = async (interaction: Interaction): Promise<Message> => {
   let title = "Eat Poop You Cat!", description, imageUrl;
-  const user = interaction.user;
-  const player = await createOrFindPlayer(user.id);
+  const player = await createOrFindPlayer(interaction.userId);
 
   // Check if the player has a pending turn
   let pendingTurn = await findPendingTurn(player);
-  const game = pendingTurn?.game || await findAvailableGame(player) || await createNewGame(interaction.guildId!, interaction.channelId!);
+  const game = pendingTurn?.game || await findAvailableGame(player) || await createNewGame(interaction.serverId!, interaction.channelId!);
 
   pendingTurn = pendingTurn || await createNewTurn(game, player);
 

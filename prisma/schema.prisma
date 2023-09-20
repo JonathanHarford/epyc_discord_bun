@@ -58,6 +58,6 @@ model Player {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt
-  discordId String   @unique
+  discordUserId String   @unique
   turns     Turn[]
 }

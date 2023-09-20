@@ -36,6 +36,7 @@ Consider:
 [x] Fix picture turns -- store pics in DB
 [x] Refactor submit to not interact with discord directly
 [x] Write more test
+[x] Get status to work
 
 
 ## NOTES
