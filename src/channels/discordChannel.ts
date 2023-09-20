@@ -1,29 +1,7 @@
 import Discord from 'discord.js';
+import { Interaction, Message, MessageRender, ChatService } from '../types';
+import { TurnWithGame } from '../db';
 
-interface ChatService {
-  sendDirectMessage(userId: string, message: Message): Promise<void>;
-  replyToCommand(interaction: Discord.CommandInteraction | null, out: Message): Promise<void>;
-}
-
-export interface Interaction {
-  userId: string;
-  serverId?: string;
-  channelId: string;
-  turnId?: string;
-  gameId?: string;
-  picture?: {
-    url: string,
-    contentType: string,
-    content: Buffer,
-  }
-  sentence?: string;
-}
-
-export interface Message {
-  title?: string;
-  description: string;
-  imageUrl?: string;
-}
 
 export const discord2Interaction = async (discordInteraction: Discord.CommandInteraction): Promise<Interaction> => {
   const pictureAttachment = discordInteraction.options?.get("picture")?.attachment;
@@ -46,7 +24,9 @@ export const discord2Interaction = async (discordInteraction: Discord.CommandInt
   }
 }
 
-const message2Embeds = (message: Message): Discord.EmbedBuilder[] => {
+
+
+const message2Embeds = (message: MessageRender): Discord.EmbedBuilder[] => {
   const embeds = new Discord.EmbedBuilder().setDescription(message.description)
   if (message.title) {
     embeds.setTitle(message.title);
@@ -60,13 +40,13 @@ const message2Embeds = (message: Message): Discord.EmbedBuilder[] => {
 export class DiscordService implements ChatService {
   constructor(private client: Discord.Client) { }
 
-  async sendDirectMessage(userId: string, message: Message): Promise<void> {
+  async sendDirectMessage(userId: string, message: MessageRender): Promise<void> {
     const user = await this.client.users.fetch(userId);
     const dmChannel = await user.createDM();
     await dmChannel.send({ embeds: message2Embeds(message) });
   }
 
-  async replyToCommand(interaction: Discord.CommandInteraction, message: Message): Promise<void> {
+  async replyToCommand(interaction: Discord.CommandInteraction, message: MessageRender): Promise<void> {
     interaction.reply({
       embeds: message2Embeds(message),
       ephemeral: true,

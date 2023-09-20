@@ -1,5 +1,5 @@
 import { createOrFindPlayer, findPendingTurn, getPreviousTurn, finishSentenceTurn, finishMediaTurn } from "../db";
-import { Interaction, Message } from "../channels/discordChannel"
+import { Interaction, Message, MessageRender, ChatService } from '../types';
 
 export const data = {
     name: "submit",
@@ -14,7 +14,7 @@ export const data = {
     }
 }
 
-export const execute = async (interaction: Interaction): Promise<Message> => {
+export const execute = async (interaction: Interaction): Promise<MessageRender> => {
     const { userId, sentence, picture } = interaction;
     const player = await createOrFindPlayer(userId);
     // Check if the player has a pending turn

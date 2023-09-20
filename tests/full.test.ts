@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { commands } from "../src/commands";
 import { Game, Player } from '../src/db'
-import { Message } from "../src/channels/discordChannel";
+import { Interaction, Message, MessageRender, ChatService } from '../src/types';
 import { MediaInput } from "../src/types";
 
 
@@ -55,7 +55,7 @@ const executeSubmitSentence = async (options:
     {
         discordUserId: string,
         sentence: string,
-        reply?: (message: Message) => void,
+        reply?: (message: MessageRender) => void,
     }) => {
     let { discordUserId, sentence, reply } = options;
     const message = await commands.submit.execute({ userId: discordUserId, channelId, sentence });
@@ -70,7 +70,7 @@ const executeSubmitPicture = async (options:
     {
         discordUserId: string,
         picture: MediaInput,
-        reply?: (message: Message) => void,
+        reply?: (message: MessageRender) => void,
     }) => {
     let { discordUserId, picture, reply } = options;
     const message = await commands.submit.execute({ userId: discordUserId, channelId, picture });
@@ -85,7 +85,7 @@ const executePlay = async (options:
     {
         discordUserId: string,
         timeString: string,
-        reply?: (message: Message) => void,
+        reply?: (message: MessageRender) => void,
     }) => {
     let { discordUserId, timeString, reply } = options;
     reply ||= ((message) => {

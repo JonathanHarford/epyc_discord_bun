@@ -3,7 +3,7 @@ import { createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn, fi
 import { config } from "../config";
 import { countdown } from "../../utils";
 import { Media } from '../db';
-import { Interaction, Message } from "../channels/discordChannel"
+import { Interaction, Message, MessageRender, ChatService } from '../types';
 
 
 export const data = {
@@ -11,7 +11,7 @@ export const data = {
   description: "Initiate a turn in a game of Eat Poop You Cat.",
 }
 
-export const execute = async (interaction: Interaction): Promise<Message> => {
+export const execute = async (interaction: Interaction): Promise<MessageRender> => {
   let title = "Eat Poop You Cat!", description, imageUrl;
   const player = await createOrFindPlayer(interaction.userId);
 

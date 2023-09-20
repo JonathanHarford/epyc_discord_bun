@@ -1,4 +1,4 @@
-import { Message, Interaction } from "../channels/discordChannel"
+import { Interaction, Message, MessageRender, ChatService } from '../types';
 import { createOrFindPlayer, getStats } from "../db"
 
 export const data = {
@@ -6,7 +6,7 @@ export const data = {
 	description: "Server and personal stats.",
 }
 
-export const execute = async (interaction: Interaction): Promise<Message> => {
+export const execute = async (interaction: Interaction): Promise<MessageRender> => {
 	const player = await createOrFindPlayer(interaction.userId);
 	const { inProgress, yoursDone, yoursInProgress } = await getStats(player);
 	return {
