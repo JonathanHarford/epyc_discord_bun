@@ -39,7 +39,7 @@ export const render = (message: Message): MessageRender => {
         };
         case "playSentenceInitiating": return {
             title: "write for me",
-            description: `You have ${timeString} to write a sentence.`,
+            description: `You're starting off Game #${gameId}! You have ${timeString} to write a sentence.`,
         };
         case "playPicture": return {
             title: "draw for me",

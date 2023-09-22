@@ -1,36 +1,55 @@
 import { expect, test } from "bun:test";
-import { commands } from "../src/commands";
+import { commands as c } from "../src/commands";
 import { Game, Player } from '../src/db'
-import { Interaction, Message, MessageRender, ChatService } from '../src/types';
-import { MediaInput } from "../src/types";
-
+import { Interaction, Message, MessageRender, MediaInput, ChatService } from '../src/types';
+import { config } from "../src/config"
 
 const channelId = "channel";
 const serverId = "server";
-const aliceDiscordId = "alice";
-const bobDiscordId = "bob";
-const carolDiscordId = "carol";
-const dmitriDiscordId = "dmitri";
+const alice = 'alice';
+const bob = 2;
+const carol = 3;
+const dmitri = 4;
 let game1, game2, game3: Game;
 
+const doHelp = async (interaction: any): Promise<Message> => {
+    return c.help.execute({
+        ...interaction,
+        serverId,
+        channelId
+    });
+}
+const doStatus = async (interaction: any): Promise<Message> => {
+    return c.status.execute({
+        ...interaction,
+        serverId,
+        channelId
+    });
+}
+const doPlay = async (interaction: any): Promise<Message> => {
+    return c.play.execute({
+        ...interaction,
+        serverId,
+        channelId
+    });
+}
+const doSubmit = async (interaction: any): Promise<Message> => {
+    return c.submit.execute({
+        ...interaction,
+        serverId,
+        channelId
+    });
+}
 
 test("A full game", async () => {
-    // await executeHelp(aliceDiscordId);
-
-    // await executeStatus({
-    //     discordUserId: aliceDiscordId,
-    //     inProgress: 0,
-    //     yoursDone: 0,
-    //     yoursInProgress: 0
-    // });
-
-    // await executeSubmitSentence({
-    //     discordUserId: aliceDiscordId,
-    //     sentence: "Alice's sentence",
-    //     reply: (message) => {
-    //         expect(message.description).toEqual("I'm not waiting on a turn from you!");
-    //     }
-    // });
+    let m: Message;
+    expect(await doHelp({})).toEqual({ messageCode: 'help'} );
+    expect(await doStatus({ userId: alice })).toEqual({ messageCode: 'status', inProgress: 0, yoursDone: 0, yoursInProgress: 0 });
+    expect(await doSubmit({ userId: alice })).toEqual({ messageCode: 'submitButNo' });
+    m = await doPlay({ userId: alice })
+    expect(m.messageCode).toEqual('playSentenceInitiating');
+    expect(m.gameId).toBeDefined();
+    expect(m.timeRemaining).toBeGreaterThan(0);
 
     // await executePlay({
     //     discordUserId: aliceDiscordId, 

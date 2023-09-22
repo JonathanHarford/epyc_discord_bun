@@ -23,22 +23,29 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
   let pendingTurn = await createNewTurn(game, player);
 
   console.log("Found an available game and created a turn...");
-  let timeRemaining, pending, previousSentence, previousPictureUrl;
   const previousTurn = await getPreviousTurn(game);
-  pending = true;
+
   if (!previousTurn) {
-    messageCode = "playSentenceInitiating";
-    timeRemaining = pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now();
+    return {
+      messageCode: 'playSentenceInitiating',
+      gameId: game.id,
+      timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now(),
+    }
   } else if (pendingTurn.sentenceTurn && previousTurn.media) {
-    messageCode = "playSentence";
-    timeRemaining = pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now();
-    previousPictureUrl = previousTurn.media.url;
+    return {
+      messageCode: 'playSentence',
+      timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now(),
+      previousPictureUrl: previousTurn.media.url,
+    }
+
   } else if (previousTurn.sentence) {
-    messageCode = "playPicture";
-    timeRemaining = pendingTurn.createdAt.getTime() + config.PICTURE_TIMEOUT * 60 * 1000 - Date.now();
-    previousSentence = previousTurn.sentence;
+    return {
+      messageCode: 'playPicture',
+      timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now(),
+      previousSentence: previousTurn.sentence,
+    }
   } else {
     throw new Error("ERROR! There is no sentence or media attached to this turn.");
   }
-  return { messageCode, timeRemaining, previousPictureUrl, previousSentence }
+
 }
