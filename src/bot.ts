@@ -3,6 +3,7 @@ import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy_commands";
 import { DiscordService, discord2Interaction } from './channels/discordChannel';
+import { render } from './copy';
 
 // create a new Client instance
 const client = new Client({
@@ -35,7 +36,9 @@ client.on("interactionCreate", async (discordInteraction) => {
         const command = commands[commandName as keyof typeof commands];
         const interaction = await discord2Interaction(discordInteraction);
         const message = await command.execute(interaction);
-        channel.replyToCommand(discordInteraction, message);
+        console.log(interaction, '\n->\n', message, '\n');
+        const messageRender = render(message);
+        channel.replyToCommand(discordInteraction, messageRender);
     }
 
 });

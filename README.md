@@ -21,8 +21,11 @@ bun run index.ts
 Consider:
 
 * How do we keep one player from initiating lots of games?
-* 
+* Do we need /submit? Can we just use /play?
 
+## Bugs
+
+* /submit picture ... -> submitButNo
 
 
 ## STATUS
@@ -36,8 +39,12 @@ Consider:
 [x] Fix picture turns -- store pics in DB
 [x] Refactor submit to not interact with discord directly
 [x] Write more test
-[ ] Get status to work
-
+[x] Get status to work
+[x] Add render layer
+[x] Finish getting rid of descriptionOverride
+[ ] readd tests
+[ ] clear old commands
+ 
 
 ## NOTES
 

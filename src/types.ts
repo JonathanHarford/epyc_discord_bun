@@ -5,12 +5,33 @@ export interface MediaInput {
     content: Buffer,
 }
 
+export type MessageCode = 
+    "help" | 
+    "status" | 
+    "playButPending" |
+    "playSentenceInitiating" |
+    "playPicture" |
+    "playSentence" |
+    "submitButNo" |
+    "submitPicture" |
+    "submitSentence" |
+    "submitPictureButSentence" |
+    "submitPictureButEmpty" |
+    "submitSentenceButPicture" | 
+    "submitSentenceButEmpty";
+    
+
 export interface Message {
-    command: "play" | "submit" | "help" | "status"
-    inProgress: number,
-    yoursDone: number,
-    yoursInProgress: number,
-    timeString?: string,
+    messageCode: MessageCode,
+
+    inProgress?: number,
+    yoursDone?: number,
+    yoursInProgress?: number,
+    timeRemaining?: number,
+    
+    previousSentence?: string,
+    previousPictureUrl?: string,
+    gameId?: number,
   }
 
   export interface ChatService {
@@ -37,4 +58,3 @@ export interface Message {
     description: string;
     imageUrl?: string;
   }
-  

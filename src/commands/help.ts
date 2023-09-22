@@ -1,4 +1,3 @@
-import { helpDescription } from "../copy";
 import { Interaction, Message, MessageRender, ChatService } from '../types';
 
 export const data = {
@@ -6,10 +5,8 @@ export const data = {
 	description: "How to play Eat Poop You Cat.",
 }
 
-export const execute = async (i: Interaction): Promise<MessageRender> => {
+export const execute = async (i: Interaction): Promise<Message> => {
 	return {
-		title: "How to play Eat Poop You Cat",
-		description: helpDescription,
-		imageUrl: "https://i.imgur.com/ipoiOMF.jpeg",
+		messageCode: 'help',
 	}
 }
