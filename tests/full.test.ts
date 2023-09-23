@@ -10,7 +10,11 @@ const alice = 'alice';
 const bob = 'bob';
 const carol = 'carol';
 const dmitri = 'dmitri';
+const pic1 = {url: 'https://i.imgur.com/aj1e4nD.jpg', contentType: 'image/jpeg'};
+const pic2 = {url: 'https://i.imgur.com/gIok1pC.jpeg', contentType: 'image/jpeg'};
+
 let game1, game2, game3: number;
+
 
 const doHelp = async (interaction: any): Promise<Message> => {
     return c.help.execute({
@@ -112,7 +116,7 @@ test("A full game", async () => {
     // Bob: /submit picture [Bob uploads a picture that is shorter or narrower than 200 pixels]
     // epyc-bot: You have 23:59 to `/submit` a picture (larger than 200x200) that illustrates "The cat sat on the mat."
 
-    expect(await doSubmit({ userId: bob, picture: 'https://i.imgur.com/aj1e4nD_d.jpg' }))
+    expect(await doSubmit({ userId: bob, picture: pic1 }))
         .toEqual({ messageCode: 'submitPicture', gameId: game1 });
 
     // Bob: /status

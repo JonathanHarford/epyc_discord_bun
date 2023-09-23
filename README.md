@@ -42,7 +42,8 @@ Consider:
 [x] Get status to work
 [x] Add render layer
 [x] Finish getting rid of descriptionOverride
-[ ] readd tests
+[ ] Fix picture test
+[ ] Add timers
 [ ] Add prompt to appropriate places
 [ ] Use table for status
 [ ] clear old commands
