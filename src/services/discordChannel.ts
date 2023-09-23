@@ -1,7 +1,6 @@
 import Discord from 'discord.js';
-import { Interaction, Message, MessageRender, ChatService } from '../types';
-import { TurnWithGame } from '../db';
-
+import { Interaction, Message, MessageRender, ChatService, TurnWithGame } from '../types';
+import * as db from '../db';
 
 export const discord2Interaction = async (discordInteraction: Discord.CommandInteraction): Promise<Interaction> => {
   const pictureAttachment = discordInteraction.options?.get("picture")?.attachment;
@@ -24,8 +23,6 @@ export const discord2Interaction = async (discordInteraction: Discord.CommandInt
   }
 }
 
-
-
 const message2Embeds = (message: MessageRender): Discord.EmbedBuilder[] => {
   const embeds = new Discord.EmbedBuilder().setDescription(message.description)
   if (message.title) {
@@ -40,8 +37,12 @@ const message2Embeds = (message: MessageRender): Discord.EmbedBuilder[] => {
 export class DiscordService implements ChatService {
   constructor(private client: Discord.Client) { }
 
-  async sendDirectMessage(userId: string, message: MessageRender): Promise<void> {
-    const user = await this.client.users.fetch(userId);
+  async sendDirectMessage(message: MessageRender): Promise<void> {
+    const { playerId } = message;
+    if (!playerId) throw new Error(`Player ${message.playerId} not found.`);
+    const player = await db.fetchPlayer(playerId);
+    if (!player) throw new Error(`Player ${message.playerId} not found.`);
+    const user = await this.client.users.fetch(player.discordUserId);
     const dmChannel = await user.createDM();
     await dmChannel.send({ embeds: message2Embeds(message) });
   }

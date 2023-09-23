@@ -2,7 +2,7 @@ import { CommandInteraction } from "discord.js";
 import { createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn, findPendingTurn, getPreviousTurn } from "../db";
 import { config } from "../config";
 
-import { Media } from '../db';
+import { Media } from '../types';
 import { Interaction, Message, MessageRender, ChatService, MessageCode } from '../types';
 
 const command = "play";
@@ -24,20 +24,20 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
   const previousTurn = await getPreviousTurn(game);
   const sentenceTurn = previousTurn ? !previousTurn.sentenceTurn : true;
   const pendingTurn = await createNewTurn(game, player, sentenceTurn);
-
+  const now = Date.now();
   if (!previousTurn) {
     console.log(`Created game ${gameId}...`);
     return {
       messageCode: 'playSentenceInitiating',
       gameId,
-      timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now(),
+      timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - now,
     }
   } else if (pendingTurn.sentenceTurn && previousTurn.media) {
     console.log(`Found an available game ${gameId} and created a sentence turn ${pendingTurn.id}...`);
     return {
       messageCode: 'playSentence',
       gameId,
-      timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now(),
+      timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - now,
       previousPictureUrl: previousTurn.media.url,
     }
 
@@ -47,7 +47,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
     return {
       messageCode: 'playPicture',
       gameId,
-      timeRemaining: pendingTurn.createdAt.getTime() + config.PICTURE_TIMEOUT * 60 * 1000 - Date.now(),
+      timeRemaining: pendingTurn.createdAt.getTime() + config.PICTURE_TIMEOUT * 60 * 1000 - now,
       previousSentence: previousTurn.sentence,
     }
   } else {

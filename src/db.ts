@@ -1,18 +1,28 @@
-import { PrismaClient, Game as pcGame, Turn as pcTurn, Player as pcPlayer, Media as pcMedia} from '@prisma/client'
-import { MediaInput } from './types';
+import { PrismaClient } from '@prisma/client'
+import {
+    DiscordUserId,
+    Player,
+    PlayerId,
+    TurnWithGame,
+    Game,
+    MediaInput
+} from './types';
 
 const prisma = new PrismaClient()
 
-export type TurnWithGame = pcTurn & { game: Game, media?: Media };
-export type Game = pcGame;
-export type Player = pcPlayer;
-export type Media = pcMedia;
 
-export const createOrFindPlayer = async (discordUserId: string): Promise<Player> => {
+
+export const createOrFindPlayer = async (discordUserId: DiscordUserId): Promise<Player> => {
     return prisma.player.upsert({
         where: { discordUserId: discordUserId },
         update: {},
         create: { discordUserId: discordUserId },
+    });
+}
+
+export const fetchPlayer = async (playerId: PlayerId): Promise<Player | null> => {
+    return prisma.player.findUnique({
+        where: { id: playerId },
     });
 }
 
@@ -76,6 +86,7 @@ export const getPreviousTurn = async (game: Game): Promise<TurnWithGame | null> 
         },
         include: {
             game: true,
+            player: true,
         },
     });
 }
@@ -91,6 +102,7 @@ export const finishSentenceTurn = async (turnId: number, sentence: string): Prom
         },
         include: {
             game: true,
+            player: true,
         },
     });
 }
@@ -146,4 +158,63 @@ export const getStats = async (player: Player): Promise<{ inProgress: number, yo
         },
     });
     return { inProgress, yoursDone, yoursInProgress };
+}
+
+export const fetchTimedoutPendingTurns = async (config: {
+    pictureTimeout: number,
+    sentenceTimeout: number,
+    now: number
+}): Promise<TurnWithGame[]> => {
+    const { pictureTimeout, sentenceTimeout, now } = config;
+    return prisma.turn.findMany({
+        where: {
+            done: false,
+            OR: [{   
+                sentenceTurn: false,
+                updatedAt: {
+                    lt: new Date(now - pictureTimeout),
+                },
+            },
+            {
+                sentenceTurn: true,
+                updatedAt: {
+                    lt: new Date(now - sentenceTimeout),
+                },
+            }]
+        },
+        include: {
+            game: true,
+        },
+    });
+}
+
+export const fetchTimedoutPendingGames = async (timeout: number, now: number): Promise<Game[]> => {
+    return prisma.game.findMany({
+        where: {
+            done: false,
+            updatedAt: {
+                lt: new Date(now - timeout),
+            },
+        },
+        include: {
+            turns: true,
+        }
+    });
+}
+
+export const deleteTurn = async (turn: TurnWithGame): Promise<void> => {
+    await prisma.turn.delete({
+        where: {
+            id: turn.id,
+        },
+    });
+}
+
+export const updateGameStatus = async (game: Game, status: { done: boolean }): Promise<void> => {
+    await prisma.game.update({
+        where: {
+            id: game.id,
+        },
+        data: status,
+    });
 }

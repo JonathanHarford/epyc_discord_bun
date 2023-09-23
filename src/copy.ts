@@ -16,6 +16,7 @@ export const render = (message: Message): MessageRender => {
         previousSentence,
         previousPictureUrl,
         gameId,
+        playerId,
     } = message;
     const timeString = timeRemaining && countdown(timeRemaining);
     switch (messageCode) {
@@ -77,6 +78,16 @@ export const render = (message: Message): MessageRender => {
         case "submitSentenceButEmpty": return {
             title: "submit to me",
             description: "You submitted a sentence, but it was empty!",
+        };
+        case "timeoutTurn": return {
+            playerId: playerId,
+            title: "timeout",
+            description: "Your turn timed out! I deleted it from the game.",
+        };
+        case "timeoutGame": return {
+            playerId: playerId, // TODO: this is wrong
+            title: "timeout",
+            description: `Game #${gameId} timed out! It's done!`,
         };
         default:
             throw new Error(`Unknown messageCode: ${messageCode}`);

@@ -42,8 +42,10 @@ Consider:
 [x] Get status to work
 [x] Add render layer
 [x] Finish getting rid of descriptionOverride
-[ ] Fix picture test
+[x] Fix picture test
 [ ] Add timers
+[ ] Sort out userId/PlayerId/etc. Should use playerId everywhere except Discord
+[ ] Audit queries/indices
 [ ] Add prompt to appropriate places
 [ ] Use table for status
 [ ] clear old commands

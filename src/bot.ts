@@ -2,8 +2,9 @@ import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy_commands";
-import { DiscordService, discord2Interaction } from './channels/discordChannel';
+import { DiscordService, discord2Interaction } from './services/discordChannel';
 import { render } from './copy';
+import { audit } from './auditor'
 
 // create a new Client instance
 const client = new Client({
@@ -15,10 +16,16 @@ const client = new Client({
         ]
 });
 
-const channel = new DiscordService(client);
+
+const chatService = new DiscordService(client);
 
 client.once(Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
+    const interval = setInterval(async () => {
+        const messages = await audit();
+        messages.forEach(m => chatService.sendDirectMessage(render(m)));
+    }, 1000 * 5); // Todo make this every minute
+    
     // await deployCommands({ guildId: c.guilds.cache.first()?.id || ""  });
 });
 
@@ -38,7 +45,7 @@ client.on("interactionCreate", async (discordInteraction) => {
         const message = await command.execute(interaction);
         console.log(interaction, '\n->\n', message, '\n');
         const messageRender = render(message);
-        channel.replyToCommand(discordInteraction, messageRender);
+        chatService.replyToCommand(discordInteraction, messageRender);
     }
 
 });

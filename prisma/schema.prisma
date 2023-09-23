@@ -19,7 +19,7 @@ model Game {
   done             Boolean  @default(false)
   turns            Turn[]   @relation("GameToTurn")
 
-  @@index([id, done], map: "idx_game")
+  @@index([id, done], map: "idx_game") // Why?
 }
 
 model Media {
@@ -51,7 +51,7 @@ model Turn {
 
   @@index([gameId], map: "idx_game_turn")
   @@index([playerId, done], map: "idx_player_turn")
-  @@index([id, done], map: "idx_turn")
+  @@index([id, done], map: "idx_turn") // Why?
 }
 
 model Player {
