@@ -43,6 +43,8 @@ Consider:
 [x] Add render layer
 [x] Finish getting rid of descriptionOverride
 [ ] readd tests
+[ ] Add prompt to appropriate places
+[ ] Use table for status
 [ ] clear old commands
  
 

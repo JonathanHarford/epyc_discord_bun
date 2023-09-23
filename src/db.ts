@@ -44,7 +44,7 @@ export const createNewGame = async (discordGuildId: string, discordChannelId: st
     return prisma.game.create({ data: { discordGuildId, discordChannelId } });
 }
 
-export const createNewTurn = async (game: Game, player: Player): Promise<TurnWithGame> => {
+export const createNewTurn = async (game: Game, player: Player, sentenceTurn: boolean): Promise<TurnWithGame> => {
     return prisma.turn.create({
         data: {
             game: {
@@ -57,6 +57,7 @@ export const createNewTurn = async (game: Game, player: Player): Promise<TurnWit
                     id: player.id,
                 },
             },
+            sentenceTurn,
         },
         include: {
             game: true,
@@ -94,7 +95,7 @@ export const finishSentenceTurn = async (turnId: number, sentence: string): Prom
     });
 }
 
-export const finishMediaTurn = async (turnId: number, contentInput: MediaInput): Promise<TurnWithGame> => {
+export const finishPictureTurn = async (turnId: number, contentInput: MediaInput): Promise<TurnWithGame> => {
     const media = await prisma.media.create({
         data: {
             Turn: {

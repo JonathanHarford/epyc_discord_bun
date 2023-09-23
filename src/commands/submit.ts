@@ -1,4 +1,4 @@
-import { createOrFindPlayer, findPendingTurn, getPreviousTurn, finishSentenceTurn, finishMediaTurn } from "../db";
+import { createOrFindPlayer, findPendingTurn, finishSentenceTurn, finishPictureTurn } from "../db";
 import { Interaction, Message, MessageRender, MessageCode, ChatService } from '../types';
 
 export const data = {
@@ -19,45 +19,59 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
     const player = await createOrFindPlayer(userId);
     // Check if the player has a pending turn
     let pendingTurn = await findPendingTurn(player);
-    let messageCode: MessageCode;
+
     // If they don't, dissuade them
     if (!pendingTurn) return { messageCode: 'submitButNo' };
-    
-    let gameId;
+
     if (pendingTurn.sentenceTurn) {
+        console.log(`Pending turn ${pendingTurn.id} is a sentence...`)
 
         // If the pending turn is a sentence and they sent a picture, correct them
-        if (picture) messageCode = "submitSentenceButPicture";
+        if (picture) return { messageCode: "submitSentenceButPicture" };
 
         // If the sentence is empty, correct them
-        else if (!sentence) messageCode = "submitSentenceButEmpty";
+        else if (!sentence) return { messageCode: "submitSentenceButEmpty" };
 
         // Update the turn
         else {
-            gameId = pendingTurn.game.id;
-            messageCode = "submitSentence";
+            console.log("Submitting sentence...")
             await finishSentenceTurn(pendingTurn.id, sentence);
+            return {
+                messageCode: "submitSentence",
+                gameId: pendingTurn.game.id,
+            }
         }
+
     }
 
     else if (!pendingTurn.sentenceTurn) {
-
+        console.log(`Pending turn ${pendingTurn.id} is a picture...`)
         // If the pending turn is a picture and they sent a sentence, correct them
-        if (sentence) messageCode = "submitPictureButSentence";
+        if (sentence) return { messageCode: "submitPictureButSentence" };
 
-        else if (!picture) messageCode = "submitPictureButEmpty";
+        else if (!picture || !picture.url || !picture.contentType) {
+            console.log(picture);
+            return { messageCode: "submitPictureButEmpty" };
+        } else {
+            // Update the turn
+            console.log("Submitting picture...")
+            await finishPictureTurn(
+                pendingTurn.id,
+                {
+                    url: picture.url,
+                    contentType: picture.contentType,
+                    content: await fetch(picture.url)
+                        .then(response => response.arrayBuffer())
+                        .then(arrayBuffer => Buffer.from(arrayBuffer)),
+                });
 
-        // Update the turn
-        else {
-            gameId = pendingTurn.game.id;
-            messageCode = "submitPicture";
-            await finishMediaTurn(pendingTurn.id, picture);
+            return {
+                messageCode: "submitPicture",
+                gameId: pendingTurn.game.id,
+            }
         }
     }
     else throw new Error("ERROR! There is no sentence or media attached to this turn.");
 
-    return {
-        messageCode,
-        gameId,
-    };
+
 }

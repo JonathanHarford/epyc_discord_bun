@@ -20,28 +20,34 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
     return { messageCode: 'playButPending', }
   }
   const game = await findAvailableGame(player) || await createNewGame(interaction.serverId!, interaction.channelId!);
-  let pendingTurn = await createNewTurn(game, player);
-
-  console.log("Found an available game and created a turn...");
+  const gameId = game.id;
   const previousTurn = await getPreviousTurn(game);
+  const sentenceTurn = previousTurn ? !previousTurn.sentenceTurn : true;
+  const pendingTurn = await createNewTurn(game, player, sentenceTurn);
 
   if (!previousTurn) {
+    console.log(`Created game ${gameId}...`);
     return {
       messageCode: 'playSentenceInitiating',
-      gameId: game.id,
+      gameId,
       timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now(),
     }
   } else if (pendingTurn.sentenceTurn && previousTurn.media) {
+    console.log(`Found an available game ${gameId} and created a sentence turn ${pendingTurn.id}...`);
     return {
       messageCode: 'playSentence',
+      gameId,
       timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now(),
       previousPictureUrl: previousTurn.media.url,
     }
 
   } else if (previousTurn.sentence) {
+    console.log(`Found an available game ${gameId} and created a picture turn ${pendingTurn.id}...`);
+    
     return {
       messageCode: 'playPicture',
-      timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 60 * 1000 - Date.now(),
+      gameId,
+      timeRemaining: pendingTurn.createdAt.getTime() + config.PICTURE_TIMEOUT * 60 * 1000 - Date.now(),
       previousSentence: previousTurn.sentence,
     }
   } else {

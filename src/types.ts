@@ -19,7 +19,6 @@ export type MessageCode =
     "submitPictureButEmpty" |
     "submitSentenceButPicture" | 
     "submitSentenceButEmpty";
-    
 
 export interface Message {
     messageCode: MessageCode,
