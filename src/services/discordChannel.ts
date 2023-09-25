@@ -1,5 +1,5 @@
 import Discord from 'discord.js';
-import { Interaction, Message, MessageRender, ChatService, TurnWithGame } from '../types';
+import { Interaction, DirectMessageRender, ReplyRender, ChannelMessageRender, MessageRender, ChatService } from '../types';
 import * as db from '../db';
 
 export const discord2Interaction = async (discordInteraction: Discord.CommandInteraction): Promise<Interaction> => {
@@ -37,21 +37,27 @@ const message2Embeds = (message: MessageRender): Discord.EmbedBuilder[] => {
 export class DiscordService implements ChatService {
   constructor(private client: Discord.Client) { }
 
-  async sendDirectMessage(message: MessageRender): Promise<void> {
-    const { playerId } = message;
-    if (!playerId) throw new Error(`Player ${message.playerId} not found.`);
+  async sendDirectMessage(envelope: DirectMessageRender): Promise<void> {
+    const { playerId } = envelope;
+    if (!playerId) throw new Error(`Player ${playerId} not found.`);
     const player = await db.fetchPlayer(playerId);
-    if (!player) throw new Error(`Player ${message.playerId} not found.`);
+    if (!player) throw new Error(`Player ${playerId} not found.`);
     const user = await this.client.users.fetch(player.discordUserId);
     const dmChannel = await user.createDM();
-    await dmChannel.send({ embeds: message2Embeds(message) });
+    await dmChannel.send({ embeds: message2Embeds(envelope.message) });
   }
 
-  async replyToCommand(interaction: Discord.CommandInteraction, message: MessageRender): Promise<void> {
+  async replyToCommand(interaction: Discord.CommandInteraction, envelope: ReplyRender): Promise<void> {
     interaction.reply({
-      embeds: message2Embeds(message),
+      embeds: message2Embeds(envelope.message),
       ephemeral: true,
     })
+  }
+
+  async sendChannelMessage(envelope: ChannelMessageRender): Promise<void> {
+    const channel = await this.client.channels.fetch(envelope.channelId);
+    if (!channel || !channel.isTextBased()) throw new Error(`Channel ${envelope.channelId} is not a text channel.`);
+    await channel.send({ embeds: message2Embeds(envelope.message) });
   }
 
 }

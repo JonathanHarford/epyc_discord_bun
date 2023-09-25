@@ -1,4 +1,4 @@
-import { Message, MessageRender, MessageCode } from "./types";
+import { Message, MessageRender } from "./types";
 
 export const countdown = (msec: number): string => {
     // format 2 hours, 34 minutes, 48 seconds as: 02:34:48
@@ -82,10 +82,9 @@ export const render = (message: Message): MessageRender => {
         case "timeoutTurn": return {
             playerId: playerId,
             title: "timeout",
-            description: "Your turn timed out! I deleted it from the game.",
+            description: `Your turn in Game #${gameId} timed out!`,
         };
         case "timeoutGame": return {
-            playerId: playerId, // TODO: this is wrong
             title: "timeout",
             description: `Game #${gameId} timed out! It's done!`,
         };

@@ -7,6 +7,7 @@ export type Player = pcPlayer;
 export type Media = pcMedia;
 export type PlayerId = number;
 export type DiscordUserId = string;
+export type ChannelId = string;
 export interface MediaInput {
   url: string,
   contentType: string,
@@ -43,10 +44,32 @@ export interface Message {
   previousPictureUrl?: string,
   gameId?: number,
 }
+export interface MessageRender {
+  playerId?: PlayerId;
+  title?: string;
+  description: string;
+  imageUrl?: string;
+}
+
+export interface ReplyRender {
+  message: MessageRender;
+}
+export interface DirectMessageRender {
+  message: MessageRender;
+  playerId: PlayerId;
+}
+
+export interface ChannelMessageRender {
+  channelId: ChannelId;
+  message: MessageRender;
+}
+
+
 
 export interface ChatService {
-  sendDirectMessage(message: MessageRender): Promise<void>;
-  replyToCommand(interaction: Discord.CommandInteraction | null, out: MessageRender): Promise<void>;
+  sendDirectMessage(message: DirectMessageRender): Promise<void>;
+  sendChannelMessage(message: ChannelMessageRender): Promise<void>;
+  replyToCommand(interaction: Discord.CommandInteraction | null, out: ReplyRender): Promise<void>;
 }
 
 export interface Interaction {
@@ -63,11 +86,6 @@ export interface Interaction {
   sentence?: string;
 }
 
-export interface MessageRender {
-  playerId?: PlayerId;
-  title?: string;
-  description: string;
-  imageUrl?: string;
-}
+
 
 // TODO add Reply and DirectMessage types to wrap MessageRender

@@ -1,4 +1,4 @@
-import { Interaction, Message, MessageRender, ChatService } from '../types';
+import { Interaction, Message } from '../types';
 import { createOrFindPlayer, getStats } from "../db"
 
 export const data = {

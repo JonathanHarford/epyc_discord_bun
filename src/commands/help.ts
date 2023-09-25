@@ -1,4 +1,4 @@
-import { Interaction, Message, MessageRender, ChatService } from '../types';
+import { Interaction, Message } from '../types';
 
 export const data = {
 	name: "help",

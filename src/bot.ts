@@ -4,7 +4,7 @@ import { commands } from "./commands";
 import { deployCommands } from "./deploy_commands";
 import { DiscordService, discord2Interaction } from './services/discordChannel';
 import { render } from './copy';
-import { audit } from './auditor'
+import { auditTurns } from './auditor'
 
 // create a new Client instance
 const client = new Client({
@@ -21,12 +21,20 @@ const chatService = new DiscordService(client);
 
 client.once(Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
-    const interval = setInterval(async () => {
-        const messages = await audit();
-        messages.forEach(m => chatService.sendDirectMessage(render(m)));
+    const heartbeat = setInterval(async () => {
+        console.log("Lub dub");
+        const messages = await auditTurns();
+
+        messages.forEach(m => {
+            if (!m.playerId) throw new Error("No playerId");
+            chatService.sendDirectMessage({
+                playerId: m.playerId,
+                message: render(m)
+            });
+        }); 
+
+        // await deployCommands({ guildId: c.guilds.cache.first()?.id || ""  });
     }, 1000 * 5); // Todo make this every minute
-    
-    // await deployCommands({ guildId: c.guilds.cache.first()?.id || ""  });
 });
 
 client.on("guildCreate", async (guild) => {
@@ -45,7 +53,7 @@ client.on("interactionCreate", async (discordInteraction) => {
         const message = await command.execute(interaction);
         console.log(interaction, '\n->\n', message, '\n');
         const messageRender = render(message);
-        chatService.replyToCommand(discordInteraction, messageRender);
+        chatService.replyToCommand(discordInteraction, { message: messageRender });
     }
 
 });

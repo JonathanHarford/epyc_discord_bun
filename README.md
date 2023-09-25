@@ -22,11 +22,9 @@ Consider:
 
 * How do we keep one player from initiating lots of games?
 * Do we need /submit? Can we just use /play?
+* send player a reminder when turn will timeout soon
 
 ## Bugs
-
-* /submit picture ... -> submitButNo
-
 
 ## STATUS
 
@@ -43,7 +41,8 @@ Consider:
 [x] Add render layer
 [x] Finish getting rid of descriptionOverride
 [x] Fix picture test
-[ ] Add timers
+[ ] Figure out test/local environments
+[ ] Finish timers
 [ ] Sort out userId/PlayerId/etc. Should use playerId everywhere except Discord
 [ ] Audit queries/indices
 [ ] Add prompt to appropriate places
@@ -53,44 +52,3 @@ Consider:
 
 ## NOTES
 
-Example picture attachment:
-```
-{
-  name: "picture",
-  type: 11,
-  value: "1152308681707356160",
-  attachment: {
-    attachment: "https://cdn.discordapp.com/ephemeral-attachments/1152030621082849333/1152308681707356160/hacker.png",
-    name: "hacker.png",
-    id: "1152308681707356160",
-    size: 25297,
-    url: "https://cdn.discordapp.com/ephemeral-attachments/1152030621082849333/1152308681707356160/hacker.png",
-    proxyURL: "https://media.discordapp.net/ephemeral-attachments/1152030621082849333/1152308681707356160/hacker.png",
-    height: 125,
-    width: 115,
-    contentType: "image/png",
-    description: null,
-    ephemeral: true,
-    duration: null,
-    waveform: null,
-    flags: {
-      bitfield: 0,
-      any: [Function: any],
-      equals: [Function: equals],
-      has: [Function: has],
-      missing: [Function: missing],
-      freeze: [Function: freeze],
-      add: [Function: add],
-      remove: [Function: remove],
-      serialize: [Function: serialize],
-      toArray: [Function: toArray],
-      toJSON: [Function: toJSON],
-      valueOf: [Function: valueOf],
-      [Symbol(Symbol.iterator)]: [Function: GeneratorFunction]
-    },
-    _patch: [Function: _patch],
-    spoiler: [Getter],
-    toJSON: [Function: toJSON]
-  }
-}
-```

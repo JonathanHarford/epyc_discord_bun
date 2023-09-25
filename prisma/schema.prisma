@@ -30,7 +30,7 @@ model Media {
   contentType  String
   content      Bytes
 
-  Turn   Turn  @relation(fields: [turnId], references: [id])
+  Turn   Turn  @relation(fields: [turnId], references: [id], onDelete: Cascade)
   turnId Int   @unique
 }
 
@@ -43,7 +43,7 @@ model Turn {
   sentence     String?
   media        Media?
   
-  game         Game     @relation("GameToTurn", fields: [gameId], references: [id])
+  game         Game     @relation("GameToTurn", fields: [gameId], references: [id], onUpdate: Cascade)
   gameId       Int
   
   player       Player   @relation(fields: [playerId], references: [id])
