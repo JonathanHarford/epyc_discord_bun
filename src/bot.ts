@@ -15,16 +15,14 @@ const client = new Client({
             GatewayIntentBits.DirectMessages,
         ]
 });
-
-
 const chatService = new DiscordService(client);
 
 client.once(Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
     const heartbeat = setInterval(async () => {
         console.log("Lub dub");
-        const messages = await auditTurns();
 
+        const messages = await auditTurns();
         messages.forEach(m => {
             if (!m.playerId) throw new Error("No playerId");
             chatService.sendDirectMessage({
@@ -33,8 +31,9 @@ client.once(Events.ClientReady, async (c) => {
             });
         }); 
 
-        // await deployCommands({ guildId: c.guilds.cache.first()?.id || ""  });
+        // TODO: Audit games
     }, 1000 * 5); // Todo make this every minute
+    // await deployCommands({ guildId: c.guilds.cache.first()?.id || ""  });
 });
 
 client.on("guildCreate", async (guild) => {
@@ -55,7 +54,6 @@ client.on("interactionCreate", async (discordInteraction) => {
         const messageRender = render(message);
         chatService.replyToCommand(discordInteraction, { message: messageRender });
     }
-
 });
 
 client.login(config.DISCORD_TOKEN);

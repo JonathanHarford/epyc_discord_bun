@@ -1,9 +1,6 @@
 import { createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn, findPendingTurn, getPreviousTurn } from "../db";
 import { config } from "../config";
-import { Media } from '../types';
 import { Interaction, Message, MessageCode } from '../types';
-
-const command = "play";
 
 export const data = {
   name: "play",

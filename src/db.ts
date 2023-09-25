@@ -10,8 +10,6 @@ import {
 
 const prisma = new PrismaClient()
 
-
-
 export const createOrFindPlayer = async (discordUserId: DiscordUserId): Promise<Player> => {
     return prisma.player.upsert({
         where: { discordUserId: discordUserId },

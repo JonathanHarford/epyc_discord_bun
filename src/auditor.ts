@@ -4,7 +4,7 @@ import { config } from "./config";
 
 export const auditTurns = async (): Promise<Message[]> => {
     const now = Date.now();
-    
+
     // If a pending turn has timed out, delete it from its game
     // and notify its player
     const timedoutTurns = await db.fetchTimedoutPendingTurns({
@@ -12,7 +12,7 @@ export const auditTurns = async (): Promise<Message[]> => {
         sentenceTimeout: config.SENTENCE_TIMEOUT * 1000,
         now,
     });
-    const timeoutTurnMessages = timedoutTurns.map(turn => {
+    return timedoutTurns.map(turn => {
         console.log(`Turn ${turn.id} has timed out...`)
         db.deleteTurn(turn);
         return {
@@ -22,6 +22,13 @@ export const auditTurns = async (): Promise<Message[]> => {
         }
     });
 
+}
+
+export const auditGames = async (): Promise<Message[]> => {
+    const now = Date.now();
+
+    // TODO: If a game has timed out, let the players know it is done 
+    // and post the results
     const timedoutGames = await db.fetchTimedoutPendingGames(
         config.GAME_TIMEOUT * 1000,
         now,
@@ -35,7 +42,6 @@ export const auditTurns = async (): Promise<Message[]> => {
     // });
 
     return [
-        ...timeoutTurnMessages, 
         // ...timeoutGameMessages,
     ];
 }

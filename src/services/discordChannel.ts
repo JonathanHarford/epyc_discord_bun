@@ -19,7 +19,7 @@ export const discord2Interaction = async (discordInteraction: Discord.CommandInt
       contentType: pictureAttachment.contentType,
       content: pictureContent,
     } || undefined,
-    sentence: discordInteraction.options?.get("sentence")?.value as string || undefined,
+    sentence: sentence || undefined,
   }
 }
 
@@ -35,7 +35,9 @@ const message2Embeds = (message: MessageRender): Discord.EmbedBuilder[] => {
 }
 
 export class DiscordService implements ChatService {
-  constructor(private client: Discord.Client) { }
+  constructor(private client: Discord.Client) { 
+    // Ideas for what should be in the constructor?
+  }
 
   async sendDirectMessage(envelope: DirectMessageRender): Promise<void> {
     const { playerId } = envelope;
