@@ -159,24 +159,23 @@ export const getStats = async (player: Player): Promise<{ inProgress: number, yo
 }
 
 export const fetchTimedoutPendingTurns = async (config: {
-    pictureTimeout: number,
-    sentenceTimeout: number,
-    now: number
+    pictureCutoff: number,
+    sentenceCutoff: number,
 }): Promise<TurnWithGame[]> => {
-    const { pictureTimeout, sentenceTimeout, now } = config;
+    const { pictureCutoff, sentenceCutoff } = config;
     return prisma.turn.findMany({
         where: {
             done: false,
             OR: [{   
                 sentenceTurn: false,
                 updatedAt: {
-                    lt: new Date(now - pictureTimeout),
+                    lt: new Date(pictureCutoff),
                 },
             },
             {
                 sentenceTurn: true,
                 updatedAt: {
-                    lt: new Date(now - sentenceTimeout),
+                    lt: new Date(sentenceCutoff),
                 },
             }]
         },
@@ -186,12 +185,12 @@ export const fetchTimedoutPendingTurns = async (config: {
     });
 }
 
-export const fetchTimedoutPendingGames = async (timeout: number, now: number): Promise<Game[]> => {
+export const fetchTimedoutPendingGames = async (gameCutoff: number): Promise<Game[]> => {
     return prisma.game.findMany({
         where: {
             done: false,
             updatedAt: {
-                lt: new Date(now - timeout),
+                lt: new Date(gameCutoff),
             },
         },
         include: {

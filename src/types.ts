@@ -85,7 +85,3 @@ export interface Interaction {
   }
   sentence?: string;
 }
-
-
-
-// TODO add Reply and DirectMessage types to wrap MessageRender

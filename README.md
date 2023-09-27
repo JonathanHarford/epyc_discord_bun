@@ -26,6 +26,8 @@ Consider:
 
 ## Bugs
 
+* I still don't understand how .env.test works. 
+
 ## STATUS
 
 [x] The bot runs and replies to commands.
@@ -41,11 +43,10 @@ Consider:
 [x] Add render layer
 [x] Finish getting rid of descriptionOverride
 [x] Fix picture test
-[ ] Figure out test/local environments
-https://www.prisma.io/docs/guides/testing/unit-testing#singleton
-https://www.prisma.io/docs/guides/development-environment/environment-variables/using-multiple-env-files
+[x] Figure out test/local environments
 [ ] Finish timers
 [ ] Sort out userId/PlayerId/etc. Should use playerId everywhere except Discord
+[ ] More tests / debugging
 [ ] Audit queries/indices
 [ ] Add prompt to appropriate places
 [ ] Use table for status
