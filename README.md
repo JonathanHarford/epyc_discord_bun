@@ -54,3 +54,4 @@ https://www.prisma.io/docs/guides/development-environment/environment-variables/
 
 ## NOTES
 
+Configure the project so that `bun run test` uses the "epyctest" database mentioned in `.env.test`. Do this without making changes to .`env.local`, which needs to continue to refer to the "epyc" database. When running the test, check the line that starts with the word "Datastore" to ensure it is using the correct database. Setting the DATABASE_URL environment variable in the shell is not a valid solution.
