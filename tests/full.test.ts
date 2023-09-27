@@ -1,6 +1,7 @@
 import { expect, test, beforeEach, afterAll } from "bun:test";
 import { commands as c } from "../src/commands";
 import { Message } from '../src/types';
+import { expireTurn, expireGame } from '../src/auditor';
 
 const channelId = "channel";
 const serverId = "server";
@@ -13,11 +14,7 @@ const pic2 = {url: 'https://i.imgur.com/gIok1pC.jpeg', contentType: 'image/jpeg'
 
 let game1, game2, game3: number;
 const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient({
-    // datasources: {
-    //     db: { url: process.env.DATABASE_URL_TEST },
-    // },
-})
+const prisma = new PrismaClient({})
 
 beforeEach(async () => {
     console.log("Clearing database...");

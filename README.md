@@ -45,6 +45,7 @@ Consider:
 [x] Fix picture test
 [x] Figure out test/local environments
 [ ] Finish timers
+ - Including in tests
 [ ] Sort out userId/PlayerId/etc. Should use playerId everywhere except Discord
 [ ] More tests / debugging
 [ ] Audit queries/indices

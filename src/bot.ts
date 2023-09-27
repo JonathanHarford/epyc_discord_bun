@@ -4,7 +4,7 @@ import { commands } from "./commands";
 import { deployCommands } from "./deploy_commands";
 import { DiscordService, discord2Interaction } from './services/discordChannel';
 import { render } from './copy';
-import { auditTurns, auditGames } from './auditor'
+import { findTurnsTimedout, expireTurn, findGamesTimedout, expireGame } from './auditor'
 import * as db from "./db";
 import { MessageCode } from './types';
 
@@ -24,44 +24,29 @@ client.once(Events.ClientReady, async (c) => {
     const heartbeat = setInterval(async () => {
         console.log("Lub dub");
 
-
         // For each pending turn that has timed out, delete it from its game
         // and notify its player
-        const turnsExpired = await auditTurns();
-        const turnExpireMessages = turnsExpired.map(turn => {
-            console.log(`Turn ${turn.id} has expired...`)
-            db.deleteTurn(turn); // And delete them
-            return {
-                messageCode: 'timeoutTurn' as MessageCode,
-                gameId: turn.gameId,
-                playerId: turn.playerId,
-            }
-        });
-        turnExpireMessages.forEach(m => {
-            if (!m.playerId) throw new Error("No playerId");
-            chatService.sendDirectMessage({
-                playerId: m.playerId,
-                message: render(m)
+        const turnsExpired = await findTurnsTimedout();
+        const turnsExpiredMessages = turnsExpired.map(expireTurn);
+        for await (const message of turnsExpiredMessages) {
+            if (!message.playerId) throw new Error("No playerId");
+            await chatService.sendDirectMessage({
+                playerId: message.playerId,
+                message: render(message),
             });
-        });
+        }
 
         // For each game that has timed out, let the players know it is done 
         // and post the results
-        const gamesDone = await auditGames();
-        const gameDoneMessages = gamesDone.map(game => {
-            console.log(`Game ${game.id} has completed...`);
-            db.updateGameStatus(game, { done: true });
-            return {
-                messageCode: 'timeoutGame' as MessageCode,
-                channelId: game.discordChannelId,
-            }
-        });
-        gameDoneMessages.forEach(m => {
-            chatService.sendChannelMessage({
-                channelId: m.channelId,
-                message: render(m)
+        const gamesDone = await findGamesTimedout();
+        const gamesExpiredMessages = gamesDone.map(expireGame);
+        for await (const message of turnsExpiredMessages) {
+            if (!message.channelId) throw new Error("No channelId");
+            await chatService.sendChannelMessage({
+                channelId: message.channelId,
+                message: render(message),
             });
-        });
+        }
     }, 1000 * 5); // Todo make this every minute
     // await deployCommands({ guildId: c.guilds.cache.first()?.id || ""  });
 });

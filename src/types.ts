@@ -34,6 +34,7 @@ export type MessageCode =
 export interface Message {
   playerId?: PlayerId,
   messageCode: MessageCode,
+  channelId?: ChannelId,
 
   inProgress?: number,
   yoursDone?: number,

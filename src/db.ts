@@ -163,6 +163,7 @@ export const fetchTimedoutPendingTurns = async (config: {
     sentenceCutoff: number,
 }): Promise<TurnWithGame[]> => {
     const { pictureCutoff, sentenceCutoff } = config;
+    console.log(`Fetching picture turns that haven't been updated since ${new Date(pictureCutoff)} and sentence turns since ${new Date(sentenceCutoff)}`)
     return prisma.turn.findMany({
         where: {
             done: false,
