@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test, beforeEach, afterAll } from "bun:test";
 import { commands as c } from "../src/commands";
 import { Message } from '../src/types';
 
@@ -12,7 +12,23 @@ const pic1 = {url: 'https://i.imgur.com/aj1e4nD.jpg', contentType: 'image/jpeg'}
 const pic2 = {url: 'https://i.imgur.com/gIok1pC.jpeg', contentType: 'image/jpeg'};
 
 let game1, game2, game3: number;
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient({
+    // datasources: {
+    //     db: { url: process.env.DATABASE_URL_TEST },
+    // },
+})
 
+beforeEach(async () => {
+    console.log("Clearing database...");
+    await prisma.$executeRaw`DELETE FROM "Turn";`
+    await prisma.$executeRaw`DELETE FROM "Player";`
+    await prisma.$executeRaw`DELETE FROM "Game";`
+})
+
+afterAll(async () => {
+    await prisma.$disconnect()
+})
 
 const doHelp = async (interaction: any): Promise<Message> => {
     return c.help.execute({

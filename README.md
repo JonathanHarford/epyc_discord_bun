@@ -42,6 +42,8 @@ Consider:
 [x] Finish getting rid of descriptionOverride
 [x] Fix picture test
 [ ] Figure out test/local environments
+https://www.prisma.io/docs/guides/testing/unit-testing#singleton
+https://www.prisma.io/docs/guides/development-environment/environment-variables/using-multiple-env-files
 [ ] Finish timers
 [ ] Sort out userId/PlayerId/etc. Should use playerId everywhere except Discord
 [ ] Audit queries/indices
