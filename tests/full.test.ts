@@ -56,6 +56,16 @@ const doSubmit = async (interaction: any): Promise<Message> => {
     });
 }
 
+const expireGameTurn = async (gameId: number): Promise<Message> => {
+    const game = await prisma.game.findUnique({
+        where: { id: gameId },
+        include: { turns: true },
+    });
+    const turn = game.turns[game.turns.length - 1];
+    expect(turn.done).toEqual(false);
+    return expireTurn(turn);
+}
+
 test("A full game", async () => {
     let m: Message;
     expect(await doHelp({}))
@@ -88,15 +98,19 @@ test("A full game", async () => {
     m = await doPlay({ userId: alice })
     expect(m.messageCode).toEqual('playSentenceInitiating');
     game2 = m.gameId;
+    expect(game2).toBeDefined();
     expect(game1).not.toEqual(game2);
-    expect(m.gameId).toBeDefined();
     expect(m.timeRemaining).toBeGreaterThan(0);
 
     expect(await doStatus({ userId: alice }))
         .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 2 });
 
-    // TODO (1 hour passes)
-    // epyc-bot → Bob: Your turn has timed out. Use `/play` to play.
+    // Time passes, and the pending turn in Game 2 expires
+    let turn = await expireGameTurn(game2!);
+    expect(turn).toBeDefined();
+    expect(turn.gameId).toEqual(game2);
+    expect(turn.playerId).toBeDefined();
+    expect(turn.messageCode).toEqual('timeoutTurn');
 
     expect(await doStatus({ userId: bob }))
         .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
