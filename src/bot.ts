@@ -29,9 +29,8 @@ client.once(Events.ClientReady, async (c) => {
         const turnsExpired = await findTurnsTimedout();
         const turnsExpiredMessages = turnsExpired.map(expireTurn);
         for await (const message of turnsExpiredMessages) {
-            if (!message.playerId) throw new Error("No playerId");
             await chatService.sendDirectMessage({
-                playerId: message.playerId,
+                playerId: message.playerId!,
                 message: render(message),
             });
         }
@@ -41,9 +40,8 @@ client.once(Events.ClientReady, async (c) => {
         const gamesDone = await findGamesTimedout();
         const gamesExpiredMessages = gamesDone.map(expireGame);
         for await (const message of turnsExpiredMessages) {
-            if (!message.channelId) throw new Error("No channelId");
             await chatService.sendChannelMessage({
-                channelId: message.channelId,
+                channelId: message.channelId!,
                 message: render(message),
             });
         }

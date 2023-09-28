@@ -41,10 +41,8 @@ export class DiscordService implements ChatService {
 
   async sendDirectMessage(envelope: DirectMessageRender): Promise<void> {
     const { playerId } = envelope;
-    if (!playerId) throw new Error(`Player ${playerId} not found.`);
-    const player = await db.fetchPlayer(playerId);
-    if (!player) throw new Error(`Player ${playerId} not found.`);
-    const user = await this.client.users.fetch(player.discordUserId);
+    const player = await db.fetchPlayer(playerId!);
+    const user = await this.client.users.fetch(player!.discordUserId);
     const dmChannel = await user.createDM();
     await dmChannel.send({ embeds: message2Embeds(envelope.message) });
   }
