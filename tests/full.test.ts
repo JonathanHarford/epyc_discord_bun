@@ -9,8 +9,8 @@ const alice = 'alice';
 const bob = 'bob';
 const carol = 'carol';
 const dmitri = 'dmitri';
-const pic1 = {url: 'https://i.imgur.com/aj1e4nD.jpg', contentType: 'image/jpeg'};
-const pic2 = {url: 'https://i.imgur.com/gIok1pC.jpeg', contentType: 'image/jpeg'};
+const pic1 = { url: 'https://i.imgur.com/aj1e4nD.jpg', contentType: 'image/jpeg' };
+const pic2 = { url: 'https://i.imgur.com/gIok1pC.jpeg', contentType: 'image/jpeg' };
 
 let game1, game2, game3: number;
 const { PrismaClient } = require('@prisma/client')
@@ -68,6 +68,7 @@ const expireGameTurn = async (gameId: number): Promise<Message> => {
 
 test("A full game", async () => {
     let m: Message;
+    let turn;
     expect(await doHelp({}))
         .toEqual({ messageCode: 'help' });
 
@@ -106,7 +107,7 @@ test("A full game", async () => {
         .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 2 });
 
     // Time passes, and the pending turn in Game 2 expires
-    let turn = await expireGameTurn(game2!);
+    turn = await expireGameTurn(game2!);
     expect(turn).toBeDefined();
     expect(turn.gameId).toEqual(game2);
     expect(turn.playerId).toBeDefined();
@@ -118,10 +119,25 @@ test("A full game", async () => {
     m = await doPlay({ userId: bob })
     expect(m.messageCode).toEqual('playPicture');
     expect(m.gameId).toEqual(game1);
+    expect(m.previousSentence).toEqual('sentence1');
     expect(m.timeRemaining).toBeGreaterThan(0);
 
     expect(await doStatus({ userId: bob }))
         .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
 
- 
+    // Time passes, and Bob's pending turn in Game 1 expires
+    turn = await expireGameTurn(game1!);
+    expect(turn).toBeDefined();
+    expect(turn.gameId).toEqual(game1);
+    expect(turn.playerId).toBeDefined();
+    expect(turn.messageCode).toEqual('timeoutTurn');
+
+    expect(await doSubmit({ userId: bob, picture: pic1 }))
+        .toEqual({ messageCode: 'submitButNo' });
+
+    m = await doPlay({ userId: bob })
+    expect(m.messageCode).toEqual('playPicture');
+    expect(m.gameId).toEqual(game1);
+    expect(m.timeRemaining).toBeGreaterThan(0);
+
 });
