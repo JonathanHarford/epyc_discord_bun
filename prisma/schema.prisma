@@ -30,7 +30,7 @@ model Media {
   contentType  String
   content      Bytes
 
-  Turn   Turn  @relation(fields: [turnId], references: [id], onDelete: Cascade)
+  turn   Turn  @relation(fields: [turnId], references: [id], onDelete: Cascade)
   turnId Int   @unique
 }
 
