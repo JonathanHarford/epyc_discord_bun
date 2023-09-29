@@ -46,7 +46,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
       previousSentence: previousTurn.sentence,
     }
   } else {
-    throw new Error("ERROR! There is no sentence or media attached to this turn.");
+    throw new Error("ERROR! There is no sentence or media attached to the preceding turn.");
   }
 
 }

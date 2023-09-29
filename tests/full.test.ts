@@ -52,7 +52,7 @@ const doPlay = async (interaction: any): Promise<Message> => {
     });
 }
 const doSubmit = async (interaction: any): Promise<Message> => {
-    console.log("/submit");
+    console.log("/submit ", interaction.sentence || interaction.picture?.url);
     return c.submit.execute({
         ...interaction,
         serverId,
@@ -139,11 +139,11 @@ test("A full game", async () => {
     expect(await doSubmit({ userId: bob, picture: pic1 }))
         .toEqual({ messageCode: 'submitButNo' });
 
-    // m = await doPlay({ userId: bob })
-    // expect(m.messageCode).toEqual('playPicture');
-    // expect(m.gameId).toEqual(game1);
-    // expect(m.previousSentence).toEqual('g1s1');
-    // expect(m.timeRemaining).toBeGreaterThan(0);
+    m = await doPlay({ userId: bob })
+    expect(m.messageCode).toEqual('playPicture');
+    expect(m.gameId).toEqual(game1);
+    expect(m.previousSentence).toEqual('g1s1');
+    expect(m.timeRemaining).toBeGreaterThan(0);
 
     // Bob: /submit picture [Bob uploads a video]
     // epyc-bot: You have 23:59 to `/submit` a picture (JPG or PNG) that illustrates "The cat sat on the mat."
@@ -151,18 +151,18 @@ test("A full game", async () => {
     // Bob: /submit picture [Bob uploads a picture that is shorter or narrower than 200 pixels]
     // epyc-bot: You have 23:59 to `/submit` a picture (larger than 200x200) that illustrates "The cat sat on the mat."
 
-    // expect(await doSubmit({ userId: bob, picture: pic1 }))
-    // .toEqual({ 
-    //     messageCode: "submitPicture",
-    //     gameId: game1,
-    // });
+    expect(await doSubmit({ userId: bob, picture: pic1 }))
+    .toEqual({ 
+        messageCode: "submitPicture",
+        gameId: game1,
+    });
 
-    // expect(await doStatus({ userId: bob }))
-    // .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
+    expect(await doStatus({ userId: bob }))
+    .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
 
     
-    // expect(await doStatus({ userId: carol }))
-    // .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
+    expect(await doStatus({ userId: carol }))
+    .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
 
     // m = await doPlay({ userId: carol })
     // expect(m.messageCode).toEqual('playSentence');
