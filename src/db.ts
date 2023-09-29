@@ -1,8 +1,10 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
+import { Turn } from '@prisma/client';
 import {
     DiscordUserId,
     Player,
     PlayerId,
+    
     TurnWithGame,
     Game,
     MediaInput
@@ -202,8 +204,8 @@ export const fetchTimedoutPendingGames = async (gameCutoff: number): Promise<Gam
     });
 }
 
-export const deleteTurn = async (turn: TurnWithGame): Promise<void> => {
-    await prisma.turn.delete({
+export const deleteTurn = async (turn: TurnWithGame): Promise<Turn> => {
+    return await prisma.turn.delete({
         where: {
             id: turn.id,
         },

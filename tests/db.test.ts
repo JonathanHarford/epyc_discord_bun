@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import * as db from '../src/db';
 import { expect, test, beforeEach, describe } from "bun:test";
-import { finishPictureTurn } from '../src/db';
 
 const discordChannelId = "channel";
 const discordGuildId = "guild";

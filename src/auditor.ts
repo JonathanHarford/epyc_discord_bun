@@ -12,7 +12,7 @@ export const findTurnsTimedout = async (): Promise<TurnWithGame[]> => {
 
 export const expireTurn = async (turn: TurnWithGame): Promise<Message> => {
     console.log(`Turn ${turn.id} has expired...`)
-    db.deleteTurn(turn); // And delete them
+    await db.deleteTurn(turn); // And delete them
     return {
         messageCode: 'timeoutTurn' as MessageCode,
         gameId: turn.gameId,

@@ -21,7 +21,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
   const pendingTurn = await createNewTurn(game, player, sentenceTurn);
   const now = Date.now();
   if (!previousTurn) {
-    console.log(`Created game ${gameId}...`);
+    console.log(`Created game ${gameId} and initiating turn ${pendingTurn.id}...`);
     return {
       messageCode: 'playSentenceInitiating',
       gameId,

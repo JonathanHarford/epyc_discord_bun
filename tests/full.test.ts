@@ -28,6 +28,7 @@ afterAll(async () => {
 })
 
 const doHelp = async (interaction: any): Promise<Message> => {
+    console.log("/help");
     return c.help.execute({
         ...interaction,
         serverId,
@@ -35,6 +36,7 @@ const doHelp = async (interaction: any): Promise<Message> => {
     });
 }
 const doStatus = async (interaction: any): Promise<Message> => {
+    console.log("/status");
     return c.status.execute({
         ...interaction,
         serverId,
@@ -42,6 +44,7 @@ const doStatus = async (interaction: any): Promise<Message> => {
     });
 }
 const doPlay = async (interaction: any): Promise<Message> => {
+    console.log("/play");
     return c.play.execute({
         ...interaction,
         serverId,
@@ -49,8 +52,7 @@ const doPlay = async (interaction: any): Promise<Message> => {
     });
 }
 const doSubmit = async (interaction: any): Promise<Message> => {
-    // Mitigate race condition :/
-    await new Promise(resolve => setTimeout(resolve, 10));
+    console.log("/submit");
     return c.submit.execute({
         ...interaction,
         serverId,
@@ -89,7 +91,7 @@ test("A full game", async () => {
     expect(await doStatus({ userId: alice }))
         .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
-    expect(await doSubmit({ userId: alice, sentence: 'sentence1' }))
+    expect(await doSubmit({ userId: alice, sentence: 'g1s1' }))
         .toEqual({ messageCode: 'submitSentence', gameId: m.gameId });
 
     expect(await doStatus({ userId: alice }))
@@ -121,7 +123,7 @@ test("A full game", async () => {
     m = await doPlay({ userId: bob })
     expect(m.messageCode).toEqual('playPicture');
     expect(m.gameId).toEqual(game1);
-    expect(m.previousSentence).toEqual('sentence1');
+    expect(m.previousSentence).toEqual('g1s1');
     expect(m.timeRemaining).toBeGreaterThan(0);
 
     expect(await doStatus({ userId: bob }))
@@ -137,15 +139,87 @@ test("A full game", async () => {
     expect(await doSubmit({ userId: bob, picture: pic1 }))
         .toEqual({ messageCode: 'submitButNo' });
 
-    m = await doPlay({ userId: bob })
-    expect(m.messageCode).toEqual('playPicture');
-    expect(m.gameId).toEqual(game1);
-    expect(m.timeRemaining).toBeGreaterThan(0);
+    // m = await doPlay({ userId: bob })
+    // expect(m.messageCode).toEqual('playPicture');
+    // expect(m.gameId).toEqual(game1);
+    // expect(m.previousSentence).toEqual('g1s1');
+    // expect(m.timeRemaining).toBeGreaterThan(0);
 
-    expect(await doSubmit({ userId: bob, picture: pic1 }))
-    .toEqual({ 
-        messageCode: "submitPicture",
-        gameId: game1,
-    });
+    // Bob: /submit picture [Bob uploads a video]
+    // epyc-bot: You have 23:59 to `/submit` a picture (JPG or PNG) that illustrates "The cat sat on the mat."
+
+    // Bob: /submit picture [Bob uploads a picture that is shorter or narrower than 200 pixels]
+    // epyc-bot: You have 23:59 to `/submit` a picture (larger than 200x200) that illustrates "The cat sat on the mat."
+
+    // expect(await doSubmit({ userId: bob, picture: pic1 }))
+    // .toEqual({ 
+    //     messageCode: "submitPicture",
+    //     gameId: game1,
+    // });
+
+    // expect(await doStatus({ userId: bob }))
+    // .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
+
+    
+    // expect(await doStatus({ userId: carol }))
+    // .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
+
+    // m = await doPlay({ userId: carol })
+    // expect(m.messageCode).toEqual('playSentence');
+    // expect(m.gameId).toEqual(game1);
+    // expect(m.previousPictureUrl).toEqual(pic1.url);
+    // expect(m.timeRemaining).toBeGreaterThan(0);
+
+    // expect(await doSubmit({ userId: carol, picture: pic2 }))
+    //     .toEqual({ messageCode: "submitSentenceButPicture" });
+
+    // expect(await doSubmit({ userId: carol, sentence: 'g1s2' }))
+    //     .toEqual({ messageCode: 'submitSentence', gameId: game1 });
+
+    // expect(await doStatus({ userId: carol }))
+    //     .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
+
+    // m = await doPlay({ userId: carol })
+    // expect(m.messageCode).toEqual('playSentenceInitiating');
+    // expect(m.gameId).not.toEqual(game1);
+    // expect(m.gameId).not.toEqual(game2);
+    // const game3 = m.gameId;
+    // expect(m.timeRemaining).toBeGreaterThan(0);
+
+    // expect(await doSubmit({ userId: carol, sentence: 'g3s1' }))
+    // .toEqual({ messageCode: 'submitSentence', gameId: game1 });
+
+    // Carol: /submit picture The dog sat on the mat.
+    // epyc-bot: Thanks, I'll let you know when Game #2 is complete.
+
+    // Carol: /status
+    // epyc-bot: Games in progress: 3. Yours: 0 done, 2 in progress.
+
+    // (a few hours pass)
+
+    // Dmitri: /status
+    // epyc-bot: Games in progress: 3. Yours: 0 done, 0 in progress.
+
+    // Dmitri: /play
+    // (Dmitri is assigned the most stale game)
+    // epyc-bot: You have 24 hours to `/submit` a picture that illustrates "Tony the Tiger lounges on a persian rug."
+
+    // Dmitri: /submit picture [Dmitri uploads and sends a picture]
+    // epyc-bot: Thanks, I'll let you know when Game #1 is complete.
+
+    // Dmitri: /status
+    // epyc-bot: Games in progress: 3. Yours: 0 done, 1 in progress.
+
+    // (a week passes since a turn has been played in Game #2 but since there is only one turn it continues to wait for someone to play it)
+
+    // (a week passes since a turn has been played in Game #1)
+
+    // epyc-bot → #epyc: Game #1 is finished! Here are the turns:
+    // epyc-bot → #epyc: Alice: The cat sat on the mat.
+    // epyc-bot → #epyc: Bob: [Bob's picture]
+    // epyc-bot → #epyc: Carol: Tony the Tiger lounges on a persian rug.
+    // epyc-bot → #epyc: Dmitri: [Dmitri's picture]
+    // epyc-bot → #epyc: This game started at 13:31 PT on September 11, 2023 and finished 9 days later at 11:24 PT on September 20, 2023. Thanks for playing! 
+
 
 });

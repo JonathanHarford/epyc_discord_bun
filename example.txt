@@ -129,3 +129,18 @@ epyc-bot → #epyc: Bob: [Bob's picture]
 epyc-bot → #epyc: Carol: Tony the Tiger lounges on a persian rug.
 epyc-bot → #epyc: Dmitri: [Dmitri's picture]
 epyc-bot → #epyc: This game started at 13:31 PT on September 11, 2023 and finished 9 days later at 11:24 PT on September 20, 2023. Thanks for playing! 
+
+Race Condition:
+* prisma.game.findunique gets the game, including turns
+* Last turn is selected
+* prisma.turn.delete({where: {id: turn.id}});
+* prisma.turn.findFirst({
+        where: {
+            done: false,
+            player: player,
+        },
+        include: {
+            game: true,
+        },
+    });
+
