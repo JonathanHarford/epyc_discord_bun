@@ -49,6 +49,8 @@ const doPlay = async (interaction: any): Promise<Message> => {
     });
 }
 const doSubmit = async (interaction: any): Promise<Message> => {
+    // Mitigate race condition :/
+    await new Promise(resolve => setTimeout(resolve, 10));
     return c.submit.execute({
         ...interaction,
         serverId,
@@ -131,7 +133,7 @@ test("A full game", async () => {
     expect(turn.gameId).toEqual(game1);
     expect(turn.playerId).toBeDefined();
     expect(turn.messageCode).toEqual('timeoutTurn');
-
+    
     expect(await doSubmit({ userId: bob, picture: pic1 }))
         .toEqual({ messageCode: 'submitButNo' });
 
@@ -139,5 +141,11 @@ test("A full game", async () => {
     expect(m.messageCode).toEqual('playPicture');
     expect(m.gameId).toEqual(game1);
     expect(m.timeRemaining).toBeGreaterThan(0);
+
+    expect(await doSubmit({ userId: bob, picture: pic1 }))
+    .toEqual({ 
+        messageCode: "submitPicture",
+        gameId: game1,
+    });
 
 });

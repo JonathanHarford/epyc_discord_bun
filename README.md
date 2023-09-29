@@ -26,7 +26,8 @@ Consider:
 
 ## Bugs
 
-* I still don't understand how .env.test works. 
+* I still don't understand how .env.test works. When I do a schema change, how do I do it to the test db too?
+* Fix race condition in test surrounding submitting a picture
 
 ## STATUS
 
