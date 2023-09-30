@@ -1,6 +1,6 @@
 import { expect, test, beforeEach, afterAll } from "bun:test";
 import { commands as c } from "../src/commands";
-import { Message } from '../src/types';
+import { Message, TurnWithGame } from '../src/types';
 import { expireTurn, expireGame } from '../src/auditor';
 
 const channelId = "channel";
@@ -61,13 +61,11 @@ const doSubmit = async (interaction: any): Promise<Message> => {
 }
 
 const expireGameTurn = async (gameId: number): Promise<Message> => {
-    const game = await prisma.game.findUnique({
-        where: { id: gameId },
-        include: { turns: true },
-    });
-    const turn = game.turns[game.turns.length - 1];
-    expect(turn.done).toEqual(false);
-    return expireTurn(turn);
+    const turnToExpire = await prisma.turn.findFirst({
+        where: { gameId, done: false },
+        include: { game: true },
+    }) as TurnWithGame;
+    return expireTurn(turnToExpire);
 }
 
 test("A full game", async () => {
@@ -113,7 +111,7 @@ test("A full game", async () => {
     expect(await doStatus({ userId: alice }))
         .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 2 });
 
-    // Time passes, and the pending turn in Game 2 expires
+    // Time passes, and the pending turn in Game 2 expires, deleting game 2
     turn = await expireGameTurn(game2!);
     expect(turn).toBeDefined();
     expect(turn.gameId).toEqual(game2);
@@ -121,7 +119,7 @@ test("A full game", async () => {
     expect(turn.messageCode).toEqual('timeoutTurn');
 
     expect(await doStatus({ userId: bob }))
-        .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
+        .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 0 });
 
     m = await doPlay({ userId: bob })
     expect(m.messageCode).toEqual('playPicture');
@@ -130,7 +128,7 @@ test("A full game", async () => {
     expect(m.timeRemaining).toBeGreaterThan(0);
 
     expect(await doStatus({ userId: bob }))
-        .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
+        .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
     // Time passes, and Bob's pending turn in Game 1 expires
     turn = await expireGameTurn(game1!);
@@ -161,11 +159,11 @@ test("A full game", async () => {
     });
 
     expect(await doStatus({ userId: bob }))
-    .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
+    .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
     
     expect(await doStatus({ userId: carol }))
-    .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
+    .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 0 });
 
     m = await doPlay({ userId: carol })
     expect(m.messageCode).toEqual('playSentence');
@@ -180,17 +178,17 @@ test("A full game", async () => {
         .toEqual({ messageCode: 'submitSentence', gameId: game1 });
 
     expect(await doStatus({ userId: carol }))
-        .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
+        .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
-    // m = await doPlay({ userId: carol })
-    // expect(m.messageCode).toEqual('playSentenceInitiating');
-    // expect(m.gameId).not.toEqual(game1);
-    // expect(m.gameId).not.toEqual(game2);
-    // const game3 = m.gameId;
-    // expect(m.timeRemaining).toBeGreaterThan(0);
+    m = await doPlay({ userId: carol })
+    expect(m.messageCode).toEqual('playSentenceInitiating');
+    expect(m.gameId).not.toEqual(game1);
+    expect(m.gameId).not.toEqual(game2);
+    const game3 = m.gameId;
+    expect(m.timeRemaining).toBeGreaterThan(0);
 
-    // expect(await doSubmit({ userId: carol, sentence: 'g3s1' }))
-    // .toEqual({ messageCode: 'submitSentence', gameId: game1 });
+    expect(await doSubmit({ userId: carol, sentence: 'g3s1' }))
+    .toEqual({ messageCode: 'submitSentence', gameId: game3 });
 
     // Carol: /submit picture The dog sat on the mat.
     // epyc-bot: Thanks, I'll let you know when Game #2 is complete.

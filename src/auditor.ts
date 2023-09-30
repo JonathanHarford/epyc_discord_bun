@@ -7,18 +7,15 @@ export const findTurnsTimedout = async (): Promise<TurnWithGame[]> => {
     return await db.fetchTimedoutPendingTurns({
         pictureCutoff: now - config.PICTURE_TIMEOUT * 1000,
         sentenceCutoff: now - config.SENTENCE_TIMEOUT * 1000,
-    });    
+    });
 }
 
 export const expireTurn = async (turn: TurnWithGame): Promise<Message> => {
-    const isOnlyTurn = (await db.getTurns(turn.game)).length === 1;
-    let turnType;
-    if (isOnlyTurn) { 
-        turnType = 'sentenceInitiate' 
-    } else { 
-        turnType = turn.sentenceTurn ? 'sentence' : 'picture' 
-    };
-    console.log(`Turn ${turn.id} (${turnType}) has expired...`)
+    const turns = await db.getOtherTurns(turn);
+    const isOnlyTurn = turns.length === 1;
+    const turnType = isOnlyTurn ? 'sentenceInitiate' :
+        (turn.sentenceTurn ? 'sentence' : 'picture');
+    console.log(`Turn ${turn.id} (${turnType}) has expired...`);
 
     if (isOnlyTurn) {
         console.log(`...and it was the only turn on game ${turn.gameId}, so that gets deleted too.`)

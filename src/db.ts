@@ -221,18 +221,26 @@ export const updateGameStatus = async (game: Game, status: { done: boolean }): P
     });
 }
 
-export const getTurns = async (game: Game): Promise<Turn[]> => {
-    return prisma.turn.findMany({
-        where: {
-            game: game,
-        },
+export const getOtherTurns = async (turn: TurnWithGame): Promise<Turn[]> => {
+    return await prisma.turn.findMany({
+        where: { game: turn.game, },
     });
 }
 
 export const deleteGame = async (game: Game): Promise<Game> => {
-    return prisma.game.delete({
-        where: {
-            id: game.id,
-        },
+    // Find all turns associated with the game (even though there should only be one)
+    const turns = await prisma.turn.findMany({
+        where: { gameId: game.id, },
+        include: { media: true, },
     });
+
+    // Delete all media associated with the turns (even though it should be a sentence turn)
+    for (const turn of turns) {
+        if (turn.media) {
+            await prisma.media.delete({ where: { id: turn.media.id, }, });
+        }
+    }
+    
+    await prisma.turn.deleteMany({ where: { gameId: game.id, }, });
+    return await prisma.game.delete({ where: { id: game.id, }, });
 }
