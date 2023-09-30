@@ -27,18 +27,17 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
       gameId,
       timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 1000 - now,
     }
-  } else if (pendingTurn.sentenceTurn && previousTurn.media) {
+  } else if (pendingTurn.sentenceTurn) {
     console.log(`Found an available game ${gameId} and created a sentence turn ${pendingTurn.id}...`);
     return {
       messageCode: 'playSentence',
       gameId,
       timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 1000 - now,
-      previousPictureUrl: previousTurn.media.url,
+      previousPictureUrl: previousTurn.media!.url,
     }
 
   } else if (previousTurn.sentence) {
     console.log(`Found an available game ${gameId} and created a picture turn ${pendingTurn.id}...`);
-    
     return {
       messageCode: 'playPicture',
       gameId,

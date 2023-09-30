@@ -11,8 +11,19 @@ export const findTurnsTimedout = async (): Promise<TurnWithGame[]> => {
 }
 
 export const expireTurn = async (turn: TurnWithGame): Promise<Message> => {
-    console.log(`Turn ${turn.id} has expired...`)
-    await db.deleteTurn(turn); // And delete them
+    const isOnlyTurn = (await db.getTurns(turn.game)).length === 1;
+    let turnType;
+    if (isOnlyTurn) { 
+        turnType = 'sentenceInitiate' 
+    } else { 
+        turnType = turn.sentenceTurn ? 'sentence' : 'picture' 
+    };
+    console.log(`Turn ${turn.id} (${turnType}) has expired...`)
+
+    if (isOnlyTurn) {
+        console.log(`...and it was the only turn on game ${turn.gameId}, so that gets deleted too.`)
+        await db.deleteGame(turn.game);
+    } else await db.deleteTurn(turn);
     return {
         messageCode: 'timeoutTurn' as MessageCode,
         gameId: turn.gameId,

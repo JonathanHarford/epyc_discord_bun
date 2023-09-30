@@ -52,7 +52,7 @@ const doPlay = async (interaction: any): Promise<Message> => {
     });
 }
 const doSubmit = async (interaction: any): Promise<Message> => {
-    console.log("/submit ", interaction.sentence || interaction.picture?.url);
+    console.log("/submit", interaction.sentence || interaction.picture?.url);
     return c.submit.execute({
         ...interaction,
         serverId,
@@ -88,6 +88,9 @@ test("A full game", async () => {
     expect(m.gameId).toBeDefined();
     expect(m.timeRemaining).toBeGreaterThan(0);
 
+    expect(await doPlay({ userId: alice }))
+        .toEqual({ messageCode: 'playButPending' });
+    
     expect(await doStatus({ userId: alice }))
         .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
@@ -97,7 +100,7 @@ test("A full game", async () => {
     expect(await doStatus({ userId: alice }))
         .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
-    expect(await doSubmit({ userId: alice, sentence: 'sentence2' }))
+    expect(await doSubmit({ userId: alice, sentence: 'sentence_reject' }))
         .toEqual({ messageCode: 'submitButNo' });
 
     m = await doPlay({ userId: alice })
@@ -164,20 +167,20 @@ test("A full game", async () => {
     expect(await doStatus({ userId: carol }))
     .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
 
-    // m = await doPlay({ userId: carol })
-    // expect(m.messageCode).toEqual('playSentence');
-    // expect(m.gameId).toEqual(game1);
-    // expect(m.previousPictureUrl).toEqual(pic1.url);
-    // expect(m.timeRemaining).toBeGreaterThan(0);
+    m = await doPlay({ userId: carol })
+    expect(m.messageCode).toEqual('playSentence');
+    expect(m.gameId).toEqual(game1);
+    expect(m.previousPictureUrl).toEqual(pic1.url);
+    expect(m.timeRemaining).toBeGreaterThan(0);
 
-    // expect(await doSubmit({ userId: carol, picture: pic2 }))
-    //     .toEqual({ messageCode: "submitSentenceButPicture" });
+    expect(await doSubmit({ userId: carol, picture: pic2 }))
+        .toEqual({ messageCode: "submitSentenceButPicture" });
 
-    // expect(await doSubmit({ userId: carol, sentence: 'g1s2' }))
-    //     .toEqual({ messageCode: 'submitSentence', gameId: game1 });
+    expect(await doSubmit({ userId: carol, sentence: 'g1s2' }))
+        .toEqual({ messageCode: 'submitSentence', gameId: game1 });
 
-    // expect(await doStatus({ userId: carol }))
-    //     .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
+    expect(await doStatus({ userId: carol }))
+        .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
 
     // m = await doPlay({ userId: carol })
     // expect(m.messageCode).toEqual('playSentenceInitiating');

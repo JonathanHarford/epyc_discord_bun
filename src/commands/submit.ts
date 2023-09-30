@@ -50,7 +50,6 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
         if (sentence) return { messageCode: "submitPictureButSentence" };
 
         else if (!picture || !picture.url || !picture.contentType) {
-            console.log(picture);
             return { messageCode: "submitPictureButEmpty" };
         } else {
             // Update the turn
