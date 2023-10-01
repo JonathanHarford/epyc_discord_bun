@@ -5,8 +5,6 @@ import { deployCommands } from "./deploy_commands";
 import { DiscordService, discord2Interaction } from './services/discordChannel';
 import { render } from './copy';
 import { findTurnsTimedout, expireTurn, findGamesTimedout, expireGame } from './auditor'
-import * as db from "./db";
-import { MessageCode } from './types';
 
 // create a new Client instance
 const client = new Client({
@@ -37,16 +35,16 @@ client.once(Events.ClientReady, async (c) => {
 
         // For each game that has timed out, let the players know it is done 
         // and post the results
-        const gamesDone = await findGamesTimedout();
-        const gamesExpiredMessages = gamesDone.map(expireGame);
-        for await (const message of turnsExpiredMessages) {
-            await chatService.sendChannelMessage({
-                channelId: message.channelId!,
-                message: render(message),
-            });
+        const games = await findGamesTimedout();
+        for await (const messageArray of await Promise.all(games.flatMap(expireGame))) {
+            for await (const message of messageArray) {
+                await chatService.sendChannelMessage({
+                    channelId: message.channelId!,
+                    message: render(message),
+                });
+            }
         }
     }, 1000 * 5); // Todo make this every minute
-    // await deployCommands({ guildId: c.guilds.cache.first()?.id || ""  });
 });
 
 client.on("guildCreate", async (guild) => {

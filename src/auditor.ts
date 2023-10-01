@@ -35,11 +35,11 @@ export const findGamesTimedout = async (): Promise<Game[]> => {
     );
 }
 
-export const expireGame = async (game: Game): Promise<Message> => {
+export const expireGame = async (game: Game): Promise<Message[]> => {
     console.log(`Game ${game.id} has completed...`);
     db.updateGameStatus(game, { done: true });
-    return {
+    return [{
         messageCode: 'timeoutGame' as MessageCode,
         channelId: game.discordChannelId,
-    }
+    } as Message];
 }

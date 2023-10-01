@@ -1,7 +1,7 @@
 import { expect, test, beforeEach, afterAll } from "bun:test";
 import { commands as c } from "../src/commands";
-import { Message, TurnWithGame } from '../src/types';
-import { expireTurn, expireGame } from '../src/auditor';
+import { Message, Game, TurnWithGame } from '../src/types';
+import * as auditor from '../src/auditor';
 
 const channelId = "channel";
 const serverId = "server";
@@ -10,7 +10,8 @@ const bob = 'bob';
 const carol = 'carol';
 const dmitri = 'dmitri';
 const pic1 = { url: 'https://i.imgur.com/aj1e4nD.jpg', contentType: 'image/jpeg' };
-const pic2 = { url: 'https://i.imgur.com/gIok1pC.jpeg', contentType: 'image/jpeg' };
+const pic2 = { url: 'https://i.imgur.com/YKgGm9y.jpeg', contentType: 'image/jpeg' };
+const pic3 = { url: 'https://i.imgur.com/DzzQWsc.jpeg', contentType: 'image/jpeg' };
 
 let game1, game2, game3: number;
 const { PrismaClient } = require('@prisma/client')
@@ -65,7 +66,15 @@ const expireGameTurn = async (gameId: number): Promise<Message> => {
         where: { gameId, done: false },
         include: { game: true },
     }) as TurnWithGame;
-    return expireTurn(turnToExpire);
+    return auditor.expireTurn(turnToExpire);
+}
+
+const expireGame = async (gameId: number): Promise<Message[]> => {
+    const gameToExpire = await prisma.game.findUnique({
+        where: { id: gameId },
+        include: { turns: true },
+    }) as Game;
+    return auditor.expireGame(gameToExpire);
 }
 
 test("A full game", async () => {
@@ -190,30 +199,28 @@ test("A full game", async () => {
     expect(await doSubmit({ userId: carol, sentence: 'g3s1' }))
     .toEqual({ messageCode: 'submitSentence', gameId: game3 });
 
-    // Carol: /submit picture The dog sat on the mat.
-    // epyc-bot: Thanks, I'll let you know when Game #2 is complete.
+    expect(await doStatus({ userId: carol }))
+        .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 2 });
 
-    // Carol: /status
-    // epyc-bot: Games in progress: 3. Yours: 0 done, 2 in progress.
+    expect(await doStatus({ userId: dmitri }))
+        .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
 
-    // (a few hours pass)
+    m = await doPlay({ userId: dmitri })
+    expect(m.messageCode).toEqual('playPicture');
+    expect(m.gameId).toEqual(game1);
+    expect(m.timeRemaining).toBeGreaterThan(0);
+    
+    expect(await doSubmit({ userId: dmitri, picture: pic3 }))
+    .toEqual({ gameId: game1, messageCode: "submitPicture" });
+    
+    expect(await doStatus({ userId: dmitri }))
+    .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
 
-    // Dmitri: /status
-    // epyc-bot: Games in progress: 3. Yours: 0 done, 0 in progress.
 
-    // Dmitri: /play
-    // (Dmitri is assigned the most stale game)
-    // epyc-bot: You have 24 hours to `/submit` a picture that illustrates "Tony the Tiger lounges on a persian rug."
-
-    // Dmitri: /submit picture [Dmitri uploads and sends a picture]
-    // epyc-bot: Thanks, I'll let you know when Game #1 is complete.
-
-    // Dmitri: /status
-    // epyc-bot: Games in progress: 3. Yours: 0 done, 1 in progress.
-
-    // (a week passes since a turn has been played in Game #2 but since there is only one turn it continues to wait for someone to play it)
-
-    // (a week passes since a turn has been played in Game #1)
+    const gameDoneMessages = await expireGame(game1!);
+    expect(gameDoneMessages).toBeDefined();
+    expect(gameDoneMessages[0].messageCode).toEqual('timeoutGame');
+    expect(gameDoneMessages[0].channelId).toEqual(channelId);
 
     // epyc-bot → #epyc: Game #1 is finished! Here are the turns:
     // epyc-bot → #epyc: Alice: The cat sat on the mat.
