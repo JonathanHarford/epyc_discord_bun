@@ -5,6 +5,7 @@ const {
   PICTURE_TIMEOUT,
   GAME_TIMEOUT,
   DATABASE_URL,
+  CHANNEL,
 } = Bun.env;
 
 if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID) {
@@ -18,4 +19,5 @@ export const config = {
   PICTURE_TIMEOUT: PICTURE_TIMEOUT && parseInt(PICTURE_TIMEOUT) || 60 * 60 * 24,
   GAME_TIMEOUT: GAME_TIMEOUT && parseInt(GAME_TIMEOUT) || 60 * 60 * 24 * 7,
   DATABASE_URL,
+  CHANNEL,
 };

@@ -1,4 +1,5 @@
 import Discord from 'discord.js';
+import { config } from "../config";
 import { Interaction, DirectMessageRender, ReplyRender, ChannelMessageRender, MessageRender, ChatService } from '../types';
 import * as db from '../db';
 
@@ -35,8 +36,13 @@ const message2Embeds = (message: MessageRender): Discord.EmbedBuilder[] => {
 }
 
 export class DiscordService implements ChatService {
+  channel?: Discord.TextChannel | undefined;
   constructor(private client: Discord.Client) { 
-    // Ideas for what should be in the constructor?
+  }
+
+  onReady() {
+    this.channel = this.client.channels.cache.find(channel => channel instanceof Discord.TextChannel && channel.name === config.CHANNEL) as Discord.TextChannel;
+    if (!this.channel) throw new Error(`Could not find channel ${config.CHANNEL}`);
   }
 
   async sendDirectMessage(envelope: DirectMessageRender): Promise<void> {
@@ -55,9 +61,7 @@ export class DiscordService implements ChatService {
   }
 
   async sendChannelMessage(envelope: ChannelMessageRender): Promise<void> {
-    const channel = await this.client.channels.fetch(envelope.channelId);
-    if (!channel || !channel.isTextBased()) throw new Error(`Channel ${envelope.channelId} is not a text channel.`);
-    await channel.send({ embeds: message2Embeds(envelope.message) });
+    await this.channel!.send({ embeds: message2Embeds(envelope.message) });
   }
 
 }

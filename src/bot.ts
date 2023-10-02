@@ -19,6 +19,7 @@ const chatService = new DiscordService(client);
 
 client.once(Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
+    chatService.onReady();
     const heartbeat = setInterval(async () => {
         console.log("Lub dub");
 
