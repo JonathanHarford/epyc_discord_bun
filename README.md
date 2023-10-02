@@ -20,17 +20,10 @@ bun run index.ts
 
 Consider:
 
-* understand joins in Prisma
-* understand async await
 * How do we keep one player from initiating lots of games?
 * Do we need /submit? Can we just use /play?
 * send player a reminder when turn will timeout soon
 * since we almost always need to include a game when fetching a turn, can we just always work with a Game (w/ Turns & Media) object?
-
-## Bugs
-
-* I still don't understand how .env.test works. When I do a schema change, how do I do it to the test db too?
-* Fix race condition in test surrounding submitting a picture
 
 ## STATUS
 
@@ -51,13 +44,8 @@ Consider:
 [x] Finish timers
 [x] Store pictures in database
 [x] Sort out userId/PlayerId/etc. Should use playerId everywhere except Discord
-[ ] More tests / debugging
+[x] More tests / debugging
 [ ] Audit queries/indices
 [ ] Add prompt to appropriate places
 [ ] Use table for status
 [ ] clear old commands
- 
-
-## NOTES
-
-Configure the project so that `bun run test` uses the "epyctest" database mentioned in `.env.test`. Do this without making changes to .`env.local`, which needs to continue to refer to the "epyc" database. When running the test, check the line that starts with the word "Datastore" to ensure it is using the correct database. Setting the DATABASE_URL environment variable in the shell is not a valid solution.
