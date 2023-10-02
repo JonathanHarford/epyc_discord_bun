@@ -13,8 +13,8 @@ export const render = (message: Message): MessageRender => {
         yoursDone,
         yoursInProgress,
         timeRemaining,
-        previousSentence,
-        previousPictureUrl,
+        sentence,
+        pictureUrl,
         gameId,
         playerId,
     } = message;
@@ -44,12 +44,12 @@ export const render = (message: Message): MessageRender => {
         };
         case "playPicture": return {
             title: "draw for me",
-            description: `You have ${timeString} to draw a picture of this sentence: "${previousSentence}"`,
+            description: `You have ${timeString} to draw a picture of this sentence: "${sentence}"`,
         };
         case "playSentence": return {
             title: "write for me",
             description: `You have ${timeString} to write a sentence of this picture:`,
-            imageUrl: previousPictureUrl,
+            imageUrl: pictureUrl,
         };
         case "submitButNo": return {
             title: "try `/play`",
@@ -84,9 +84,18 @@ export const render = (message: Message): MessageRender => {
             title: "timeout",
             description: `Your turn in Game #${gameId} timed out!`,
         };
-        case "timeoutGame": return {
-            title: "timeout",
+        case "timeoutGameIntro": return {
+            title: "game done",
             description: `Game #${gameId} timed out! It's done!`,
+        };
+        case "timeoutGameTurn": 
+        const r =  pictureUrl ?           {
+            description: `${playerId} drew:`,
+            imageUrl: pictureUrl,
+    }:  { description: `${playerId} wrote "${sentence}"` };
+        return {
+            playerId: playerId,
+            ...r,
         };
         default:
             throw new Error(`Unknown messageCode: ${messageCode}`);

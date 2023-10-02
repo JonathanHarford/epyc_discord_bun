@@ -133,7 +133,7 @@ test("A full game", async () => {
     m = await doPlay({ userId: bob })
     expect(m.messageCode).toEqual('playPicture');
     expect(m.gameId).toEqual(game1);
-    expect(m.previousSentence).toEqual('g1s1');
+    expect(m.sentence).toEqual('g1s1');
     expect(m.timeRemaining).toBeGreaterThan(0);
 
     expect(await doStatus({ userId: bob }))
@@ -152,7 +152,7 @@ test("A full game", async () => {
     m = await doPlay({ userId: bob })
     expect(m.messageCode).toEqual('playPicture');
     expect(m.gameId).toEqual(game1);
-    expect(m.previousSentence).toEqual('g1s1');
+    expect(m.sentence).toEqual('g1s1');
     expect(m.timeRemaining).toBeGreaterThan(0);
 
     // Bob: /submit picture [Bob uploads a video]
@@ -177,7 +177,7 @@ test("A full game", async () => {
     m = await doPlay({ userId: carol })
     expect(m.messageCode).toEqual('playSentence');
     expect(m.gameId).toEqual(game1);
-    expect(m.previousPictureUrl).toEqual(pic1.url);
+    expect(m.pictureUrl).toEqual(pic1.url);
     expect(m.timeRemaining).toBeGreaterThan(0);
 
     expect(await doSubmit({ userId: carol, picture: pic2 }))
@@ -219,7 +219,7 @@ test("A full game", async () => {
 
     const gameDoneMessages = await expireGame(game1!);
     expect(gameDoneMessages).toBeDefined();
-    expect(gameDoneMessages[0].messageCode).toEqual('timeoutGame');
+    expect(gameDoneMessages[0].messageCode).toEqual('timeoutGameIntro');
     expect(gameDoneMessages[0].channelId).toEqual(channelId);
 
     // epyc-bot → #epyc: Game #1 is finished! Here are the turns:

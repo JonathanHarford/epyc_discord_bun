@@ -227,6 +227,15 @@ export const getOtherTurns = async (turn: TurnWithGame): Promise<Turn[]> => {
     });
 }
 
+export const getTurns = async (game: Game): Promise<TurnWithGame[]> => {
+    return await prisma.turn.findMany({
+        where: { game: game, },
+        orderBy: { createdAt: "asc", },
+        include: { media: true, },
+    }) as TurnWithGame[];
+}
+
+
 export const deleteGame = async (game: Game): Promise<Game> => {
     // Find all turns associated with the game (even though there should only be one)
     const turns = await prisma.turn.findMany({
@@ -240,7 +249,7 @@ export const deleteGame = async (game: Game): Promise<Game> => {
             await prisma.media.delete({ where: { id: turn.media.id, }, });
         }
     }
-    
+
     await prisma.turn.deleteMany({ where: { gameId: game.id, }, });
     return await prisma.game.delete({ where: { id: game.id, }, });
 }

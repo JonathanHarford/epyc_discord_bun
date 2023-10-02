@@ -29,7 +29,9 @@ export type MessageCode =
   "submitSentenceButPicture" |
   "submitSentenceButEmpty" |
   "timeoutTurn" |
-  "timeoutGame";
+  "timeoutGameIntro" | 
+  "timeoutGameTurn" |
+  "timeoutGameEnd";
 
 export interface Message {
   playerId?: PlayerId,
@@ -41,8 +43,8 @@ export interface Message {
   yoursInProgress?: number,
   timeRemaining?: number,
 
-  previousSentence?: string,
-  previousPictureUrl?: string,
+  sentence?: string,
+  pictureUrl?: string,
   gameId?: number,
 }
 export interface MessageRender {

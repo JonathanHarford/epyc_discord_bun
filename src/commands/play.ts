@@ -33,7 +33,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
       messageCode: 'playSentence',
       gameId,
       timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 1000 - now,
-      previousPictureUrl: previousTurn.media!.url,
+      pictureUrl: previousTurn.media!.url,
     }
 
   } else if (previousTurn.sentence) {
@@ -42,7 +42,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
       messageCode: 'playPicture',
       gameId,
       timeRemaining: pendingTurn.createdAt.getTime() + config.PICTURE_TIMEOUT * 1000 - now,
-      previousSentence: previousTurn.sentence,
+      sentence: previousTurn.sentence,
     }
   } else {
     throw new Error("ERROR! There is no sentence or media attached to the preceding turn.");
