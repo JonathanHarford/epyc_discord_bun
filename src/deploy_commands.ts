@@ -5,8 +5,8 @@ import { config } from "./config";
 const commandsData = Object.values(commands).map((command) => {
   const { name, description } = command.data;
   const slashCommand = new SlashCommandBuilder()
-     .setName(name)
-     .setDescription(description);
+    .setName(name)
+    .setDescription(description);
   if ("stringOption" in command.data) {
     const { name: stringName, description: stringDescription } = command.data.stringOption;
     slashCommand.addStringOption(option => option.setName(stringName).setDescription(stringDescription));
@@ -39,4 +39,15 @@ export async function deployCommands({ guildId }: DeployCommandsProps) {
   } catch (error) {
     console.error(error);
   }
+}
+
+export async function deleteCommands({ guildId }: DeployCommandsProps) {
+  rest.put(Routes.applicationGuildCommands(config.DISCORD_CLIENT_ID, guildId), { body: [] })
+	.then(() => console.log('Successfully deleted all guild commands.'))
+	.catch(console.error);
+
+// for global commands
+rest.put(Routes.applicationCommands(config.DISCORD_CLIENT_ID), { body: [] })
+	.then(() => console.log('Successfully deleted all application commands.'))
+	.catch(console.error);
 }

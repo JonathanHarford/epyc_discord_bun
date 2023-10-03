@@ -1,7 +1,7 @@
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { config } from "./config";
 import { commands } from "./commands";
-import { deployCommands } from "./deploy_commands";
+import { deleteCommands, deployCommands } from "./deploy_commands";
 import { DiscordService, discord2Interaction } from './services/discordChannel';
 import { render } from './copy';
 import { findTurnsTimedout, expireTurn, findGamesTimedout, finishGame } from './auditor'
@@ -19,9 +19,14 @@ const chatService = new DiscordService(client);
 
 client.once(Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
+
+    // Uncomment these to refresh commands:
+    // await deleteCommands({ guildId: c.guilds.cache.first()?.id || '' });
+    // await deployCommands({ guildId: c.guilds.cache.first()?.id || '' });
+
     chatService.onReady();
     const heartbeat = setInterval(async () => {
-        console.log("Lub dub");
+        // console.log("Lub dub");
 
         // For each pending turn that has timed out, delete it from its game
         // and notify its player
