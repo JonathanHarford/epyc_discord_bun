@@ -42,14 +42,12 @@ export const finishGame = async (game: Game): Promise<Message[]> => {
     db.updateGameStatus(game, { done: true });
     const messages = await Promise.all(game.turns.map(async (turn) => {
         const player = await db.fetchPlayer(turn.playerId);
-        const sentence = turn.sentenceTurn ? turn.sentence : undefined;
-        const picture = turn.sentenceTurn ? turn.media : undefined;
+        const content = turn.sentenceTurn ? {sentence: turn.sentence} : {pictureUrl: turn.media!.url};
         return {
             messageCode: 'gameDoneTurn' as MessageCode,
             gameId: game.id,
             discordUserId: player?.discordUserId,
-            sentence,
-            picture,
+            ...content,
         } as Message;
     }));
     return [{

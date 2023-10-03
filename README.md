@@ -52,6 +52,7 @@ Consider:
 ### Todo
 
 * Create full finish game message(s)
+* Resize image on upload
 * Audit queries/indices
 * Add prompt to appropriate places
 * Use table for status

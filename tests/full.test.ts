@@ -65,7 +65,7 @@ const doSubmit = async (interaction: any): Promise<Message> => {
 const expirePendingTurn = async (gameId: number): Promise<Message> => {
     const game = await prisma.game.findUnique({
         where: { id: gameId },
-        include: { turns: true },
+        include: { turns: { include: { media: true } } }
     }) as Game;
     return auditor.expireTurn(game);
 }
@@ -73,7 +73,7 @@ const expirePendingTurn = async (gameId: number): Promise<Message> => {
 const finishGame = async (gameId: number): Promise<Message[]> => {
     const gameToExpire = await prisma.game.findUnique({
         where: { id: gameId },
-        include: { turns: true },
+        include: { turns: { include: { media: true } } }
     }) as Game;
     return auditor.finishGame(gameToExpire);
 }
@@ -90,6 +90,7 @@ test("A full game", async () => {
     expect(await doSubmit({ userId: alice }))
         .toEqual({ messageCode: 'submitButNo' });
 
+    // Alice starts turn 1 in game 1
     m = await doPlay({ userId: alice })
     expect(m.messageCode).toEqual('playSentenceInitiating');
     game1 = m.gameId;
@@ -102,6 +103,7 @@ test("A full game", async () => {
     expect(await doStatus({ userId: alice }))
         .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
+    // Alice submits turn 1 in game 1
     expect(await doSubmit({ userId: alice, sentence: 'g1s1' }))
         .toEqual({ messageCode: 'submitSentence', gameId: m.gameId });
 
@@ -111,6 +113,8 @@ test("A full game", async () => {
     expect(await doSubmit({ userId: alice, sentence: 'sentence_reject' }))
         .toEqual({ messageCode: 'submitButNo' });
 
+    
+    // Alice starts turn 1 in game 2
     m = await doPlay({ userId: alice })
     expect(m.messageCode).toEqual('playSentenceInitiating');
     game2 = m.gameId;
@@ -131,6 +135,7 @@ test("A full game", async () => {
     expect(await doStatus({ userId: bob }))
         .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 0 });
 
+    // Bob starts turn 2 in game 1
     m = await doPlay({ userId: bob })
     expect(m.messageCode).toEqual('playPicture');
     expect(m.gameId).toEqual(game1);
@@ -149,6 +154,7 @@ test("A full game", async () => {
     expect(await doSubmit({ userId: bob, picture: pic1 }))
         .toEqual({ messageCode: 'submitButNo' });
 
+    // Bob starts turn 2 in game 1
     m = await doPlay({ userId: bob })
     expect(m.messageCode).toEqual('playPicture');
     expect(m.gameId).toEqual(game1);
@@ -161,6 +167,7 @@ test("A full game", async () => {
     // Bob: /submit picture [Bob uploads a picture that is shorter or narrower than 200 pixels]
     // epyc-bot: You have 23:59 to `/submit` a picture (larger than 200x200) that illustrates "The cat sat on the mat."
 
+    // Bob submits turn 2 in game 1
     expect(await doSubmit({ userId: bob, picture: pic1 }))
     .toEqual({ 
         messageCode: "submitPicture",
@@ -174,6 +181,7 @@ test("A full game", async () => {
     expect(await doStatus({ userId: carol }))
     .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 0 });
 
+    // Carol starts turn 3 in game 1
     m = await doPlay({ userId: carol })
     expect(m.messageCode).toEqual('playSentence');
     expect(m.gameId).toEqual(game1);
@@ -183,9 +191,10 @@ test("A full game", async () => {
     expect(await doSubmit({ userId: carol, picture: pic2 }))
         .toEqual({ messageCode: "submitSentenceButPicture" });
 
+    // Carol submits turn 3 in game 1
     expect(await doSubmit({ userId: carol, sentence: 'g1s2' }))
         .toEqual({ messageCode: 'submitSentence', gameId: game1 });
-
+   
     expect(await doStatus({ userId: carol }))
         .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
@@ -205,17 +214,18 @@ test("A full game", async () => {
     expect(await doStatus({ userId: dmitri }))
         .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 0 });
 
+    // Dmitri starts turn 4 in game 1
     m = await doPlay({ userId: dmitri })
     expect(m.messageCode).toEqual('playPicture');
     expect(m.gameId).toEqual(game1);
     expect(m.timeRemaining).toBeGreaterThan(0);
     
+    // Dmitri submits turn 4 in game 1
     expect(await doSubmit({ userId: dmitri, picture: pic3 }))
     .toEqual({ gameId: game1, messageCode: "submitPicture" });
     
     expect(await doStatus({ userId: dmitri }))
     .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
-
 
     const gameDoneMessages = await finishGame(game1!);
     expect(gameDoneMessages).toBeDefined();
@@ -223,13 +233,16 @@ test("A full game", async () => {
         delete m.playerId;
         delete m.timeRemaining;
         delete m.gameId;
+        if (m.pictureUrl === undefined) delete m.pictureUrl;
+        if (m.sentence === undefined) delete m.sentence;
         return m;
     });
     expect(cleanedMessages).toEqual([
         { messageCode: 'timeoutGameIntro', channelId },
         { messageCode: 'gameDoneTurn', discordUserId: 'alice', sentence: 'g1s1'},
-        { messageCode: 'gameDoneTurn', discordUserId: 'bob', picture: pic1.url },
+        { messageCode: 'gameDoneTurn', discordUserId: 'bob', pictureUrl: pic1.url },
         { messageCode: 'gameDoneTurn', discordUserId: 'carol', sentence: 'g1s2'},
+        { messageCode: 'gameDoneTurn', discordUserId: 'dmitri', pictureUrl: pic3.url },
         // { messageCode: 'timeoutGameEnd', channelId }
     ]);
     
