@@ -1,10 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { Turn } from '@prisma/client';
 import {
     DiscordUserId,
     Player,
     PlayerId,
-    TurnWithGame,
+    // Turn,
     Game,
     MediaInput
 } from './types';
@@ -20,19 +19,29 @@ export const createOrFindPlayer = async (discordUserId: DiscordUserId): Promise<
 }
 
 export const fetchPlayer = async (playerId: PlayerId): Promise<Player | null> => {
-    return prisma.player.findUnique({
-        where: { id: playerId },
-    });
+    return prisma.player.findUnique({ where: { id: playerId }, });
 }
 
-export const findPendingTurn = async (player: Player): Promise<TurnWithGame | null> => {
-    return await prisma.turn.findFirst({
+export const fetchGame = async (gameId: number): Promise<Game | null> => {
+    return prisma.game.findUnique({
+        where: { id: gameId },
+        include: { turns: { include: { media: true } } },
+    }) as Promise<Game>;
+}
+
+export const findPendingGame = async (player: Player): Promise<Game | null> => {
+    return prisma.game.findFirst({
         where: {
             done: false,
-            player: player,
+            turns: {
+                some: {
+                    player: player,
+                    done: false,
+                },
+            },
         },
-        include: { game: true, },
-    }) as TurnWithGame;
+        include: { turns: { include: { media: true } } },
+    }) as Promise<Game>;
 }
 
 export const findAvailableGame = async (player: Player): Promise<Game | null> => {
@@ -45,16 +54,23 @@ export const findAvailableGame = async (player: Player): Promise<Game | null> =>
                 none: { player: player },
             },
         },
-    });
+        include: { turns: { include: { media: true } } },
+    }) as Promise<Game>;
 }
 
 export const createNewGame = async (discordGuildId: string, discordChannelId: string): Promise<Game> => {
     console.log(`Creating new game...`);
-    return prisma.game.create({ data: { discordGuildId, discordChannelId } });
+    return prisma.game.create({
+        data: {
+            discordGuildId,
+            discordChannelId,
+        },
+        include: { turns: { include: { media: true } } },
+    });
 }
 
-export const createNewTurn = async (game: Game, player: Player, sentenceTurn: boolean): Promise<TurnWithGame> => {
-    return prisma.turn.create({
+export const createNewTurn = async (game: Game, player: Player, sentenceTurn: boolean): Promise<Game> => {
+    await prisma.turn.create({
         data: {
             game: {
                 connect: {
@@ -68,46 +84,24 @@ export const createNewTurn = async (game: Game, player: Player, sentenceTurn: bo
             },
             sentenceTurn,
         },
-        include: {
-            game: true,
-        },
     });
+    return fetchGame(game.id) as Promise<Game>;
 }
 
-export const getPreviousTurn = async (game: Game): Promise<TurnWithGame | null> => {
-    return prisma.turn.findFirst({
-        where: {
-            game: game,
-            done: true,
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-        include: {
-            game: true,
-            player: true,
-            media: true,
-        },
-    }) as Promise<TurnWithGame>;
-}
-
-export const finishSentenceTurn = async (turnId: number, sentence: string): Promise<TurnWithGame> => {
-    return prisma.turn.update({
+export const finishSentenceTurn = async (turnId: number, sentence: string): Promise<Game> => {
+    const t = await prisma.turn.update({
         where: {
             id: turnId,
         },
         data: {
             sentence: sentence,
             done: true
-        },
-        include: {
-            game: true,
-            player: true,
-        },
+        }
     });
+    return fetchGame(t.gameId) as Promise<Game>;
 }
 
-export const finishPictureTurn = async (turnId: number, contentInput: MediaInput): Promise<TurnWithGame> => {
+export const finishPictureTurn = async (turnId: number, contentInput: MediaInput): Promise<Game> => {
     const media = await prisma.media.create({
         data: {
             turn: {
@@ -122,18 +116,12 @@ export const finishPictureTurn = async (turnId: number, contentInput: MediaInput
     });
 
     // Update the turn to be "done" and include the media item
-    return prisma.turn.update({
-        where: {
-            id: turnId,
-        },
-        data: {
-            done: true
-        },
-        include: {
-            game: true,
-            media: true,
-        },
-    }) as Promise<TurnWithGame>;
+    const t = await prisma.turn.update({
+        where: { id: turnId, },
+        data: { done: true }
+    });
+
+    return fetchGame(t.gameId) as Promise<Game>;
 }
 
 export const getStats = async (player: Player): Promise<{ inProgress: number, yoursDone: number, yoursInProgress: number }> => {
@@ -165,49 +153,52 @@ export const getStats = async (player: Player): Promise<{ inProgress: number, yo
 export const fetchTimedoutPendingTurns = async (config: {
     pictureCutoff: number,
     sentenceCutoff: number,
-}): Promise<TurnWithGame[]> => {
+}): Promise<Game[]> => {
     const { pictureCutoff, sentenceCutoff } = config;
-    console.log(`Fetching picture turns that haven't been updated since ${new Date(pictureCutoff)} and sentence turns since ${new Date(sentenceCutoff)}`)
-    return prisma.turn.findMany({
+    console.log(`Finding pending picture turns that haven't been updated since ${new Date(pictureCutoff)} and pending sentence turns since ${new Date(sentenceCutoff)}`)
+return prisma.game.findMany({
         where: {
             done: false,
-            OR: [{
-                sentenceTurn: false,
-                updatedAt: {
-                    lt: new Date(pictureCutoff),
+            turns: {
+                some: {
+                    done: false,
+                    OR: [{
+                        sentenceTurn: false,
+                        updatedAt: {
+                            lt: new Date(pictureCutoff),
+                        },
+                    }, {
+                        sentenceTurn: true,
+                        updatedAt: {
+                            lt: new Date(sentenceCutoff),
+                        },
+                    }]
                 },
-            },
-            {
-                sentenceTurn: true,
-                updatedAt: {
-                    lt: new Date(sentenceCutoff),
-                },
-            }]
+            }
         },
-        include: {
-            game: true,
-        },
+        include: { turns: { include: { media: true } } },
     });
+
 }
 
 export const fetchTimedoutPendingGames = async (gameCutoff: number): Promise<Game[]> => {
-    return prisma.game.findMany({
+    const games = prisma.game.findMany({
         where: {
             done: false,
             updatedAt: {
                 lt: new Date(gameCutoff),
             },
         },
-        include: {
-            turns: true,
-        }
+        include: { turns: { include: { media: true } } },
     });
+    return games;
 }
 
-export const deleteTurn = async (turn: TurnWithGame): Promise<Turn> => {
-    return prisma.turn.delete({
+export const deleteTurn = async (game: Game) => {
+    console.log(`Deleting turn ${game.turns[game.turns.length - 1].id}...`);
+    await prisma.turn.delete({
         where: {
-            id: turn.id,
+            id: game.turns[game.turns.length - 1].id,
         },
     });
 }
@@ -218,25 +209,11 @@ export const updateGameStatus = async (game: Game, status: { done: boolean }): P
             id: game.id,
         },
         data: status,
+        include: { turns: { include: { media: true } } },
     });
 }
 
-export const getOtherTurns = async (turn: TurnWithGame): Promise<Turn[]> => {
-    return await prisma.turn.findMany({
-        where: { game: turn.game, },
-    });
-}
-
-export const getTurns = async (game: Game): Promise<TurnWithGame[]> => {
-    return await prisma.turn.findMany({
-        where: { game: game, },
-        orderBy: { createdAt: "asc", },
-        include: { media: true, },
-    }) as TurnWithGame[];
-}
-
-
-export const deleteGame = async (game: Game): Promise<Game> => {
+export const deleteGame = async (game: Game) => {
     // Find all turns associated with the game (even though there should only be one)
     const turns = await prisma.turn.findMany({
         where: { gameId: game.id, },
@@ -251,5 +228,5 @@ export const deleteGame = async (game: Game): Promise<Game> => {
     }
 
     await prisma.turn.deleteMany({ where: { gameId: game.id, }, });
-    return await prisma.game.delete({ where: { id: game.id, }, });
+    await prisma.game.delete({ where: { id: game.id, }, });
 }

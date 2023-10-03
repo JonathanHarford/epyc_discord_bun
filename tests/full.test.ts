@@ -1,7 +1,8 @@
 import { expect, test, beforeEach, afterAll } from "bun:test";
 import { commands as c } from "../src/commands";
-import { Message, Game, TurnWithGame } from '../src/types';
+import { Message, Game, Turn } from '../src/types';
 import * as auditor from '../src/auditor';
+import * as db from '../src/db';
 
 const channelId = "channel";
 const serverId = "server";
@@ -61,20 +62,20 @@ const doSubmit = async (interaction: any): Promise<Message> => {
     });
 }
 
-const expireGameTurn = async (gameId: number): Promise<Message> => {
-    const turnToExpire = await prisma.turn.findFirst({
-        where: { gameId, done: false },
-        include: { game: true },
-    }) as TurnWithGame;
-    return auditor.expireTurn(turnToExpire);
+const expirePendingTurn = async (gameId: number): Promise<Message> => {
+    const game = await prisma.game.findUnique({
+        where: { id: gameId },
+        include: { turns: true },
+    }) as Game;
+    return auditor.expireTurn(game);
 }
 
-const expireGame = async (gameId: number): Promise<Message[]> => {
+const finishGame = async (gameId: number): Promise<Message[]> => {
     const gameToExpire = await prisma.game.findUnique({
         where: { id: gameId },
         include: { turns: true },
     }) as Game;
-    return auditor.expireGame(gameToExpire);
+    return auditor.finishGame(gameToExpire);
 }
 
 test("A full game", async () => {
@@ -121,11 +122,11 @@ test("A full game", async () => {
         .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 2 });
 
     // Time passes, and the pending turn in Game 2 expires, deleting game 2
-    turn = await expireGameTurn(game2!);
-    expect(turn).toBeDefined();
-    expect(turn.gameId).toEqual(game2);
-    expect(turn.playerId).toBeDefined();
-    expect(turn.messageCode).toEqual('timeoutTurn');
+    m = await expirePendingTurn(game2!);
+    expect(m).toBeDefined();
+    expect(m.gameId).toEqual(game2);
+    expect(m.playerId).toBeDefined();
+    expect(m.messageCode).toEqual('timeoutTurn');
 
     expect(await doStatus({ userId: bob }))
         .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 0 });
@@ -140,12 +141,11 @@ test("A full game", async () => {
         .toEqual({ messageCode: 'status', inProgress: 1, yoursDone: 0, yoursInProgress: 1 });
 
     // Time passes, and Bob's pending turn in Game 1 expires
-    turn = await expireGameTurn(game1!);
-    expect(turn).toBeDefined();
-    expect(turn.gameId).toEqual(game1);
-    expect(turn.playerId).toBeDefined();
-    expect(turn.messageCode).toEqual('timeoutTurn');
-    
+    m = await expirePendingTurn(game1!);
+    expect(m.gameId).toEqual(game1);
+    expect(m.playerId).toBeDefined();
+    expect(m.messageCode).toEqual('timeoutTurn');
+
     expect(await doSubmit({ userId: bob, picture: pic1 }))
         .toEqual({ messageCode: 'submitButNo' });
 
@@ -217,7 +217,7 @@ test("A full game", async () => {
     .toEqual({ messageCode: 'status', inProgress: 2, yoursDone: 0, yoursInProgress: 1 });
 
 
-    const gameDoneMessages = await expireGame(game1!);
+    const gameDoneMessages = await finishGame(game1!);
     expect(gameDoneMessages).toBeDefined();
     expect(gameDoneMessages[0].messageCode).toEqual('timeoutGameIntro');
     expect(gameDoneMessages[0].channelId).toEqual(channelId);

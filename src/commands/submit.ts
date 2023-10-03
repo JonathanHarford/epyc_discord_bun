@@ -1,4 +1,4 @@
-import { createOrFindPlayer, findPendingTurn, finishSentenceTurn, finishPictureTurn } from "../db";
+import { createOrFindPlayer, findPendingGame, finishSentenceTurn, finishPictureTurn } from "../db";
 import { Interaction, Message } from '../types';
 
 export const data = {
@@ -18,7 +18,8 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
     const { userId, sentence, picture } = interaction;
     const player = await createOrFindPlayer(userId);
     // Check if the player has a pending turn
-    let pendingTurn = await findPendingTurn(player);
+    let game = await findPendingGame(player);
+    const pendingTurn = game?.turns[game.turns.length - 1];
 
     // If they don't, dissuade them
     if (!pendingTurn) return { messageCode: 'submitButNo' };
@@ -38,7 +39,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
             await finishSentenceTurn(pendingTurn.id, sentence);
             return {
                 messageCode: "submitSentence",
-                gameId: pendingTurn.game.id,
+                gameId: game!.id,
             }
         }
 
@@ -66,7 +67,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
 
             return {
                 messageCode: "submitPicture",
-                gameId: pendingTurn.game.id,
+                gameId: game!.id,
             }
         }
     }

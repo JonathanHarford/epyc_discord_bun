@@ -1,4 +1,4 @@
-import { createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn, findPendingTurn, getPreviousTurn } from "../db";
+import { findPendingGame, createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn} from "../db";
 import { config } from "../config";
 import { Interaction, Message, MessageCode } from '../types';
 
@@ -9,16 +9,15 @@ export const data = {
 
 export const execute = async (interaction: Interaction): Promise<Message> => {
   const player = await createOrFindPlayer(interaction.userId);
-  let messageCode: MessageCode;
   // Check if the player has a pending turn
-  if (await findPendingTurn(player)) {
+  if (await findPendingGame(player)) {
     return { messageCode: 'playButPending', }
   }
-  const game = await findAvailableGame(player) || await createNewGame(interaction.serverId!, interaction.channelId!);
+  let game = await findAvailableGame(player) || await createNewGame(interaction.serverId!, interaction.channelId!);
   const gameId = game.id;
-  const previousTurn = await getPreviousTurn(game);
-  const sentenceTurn = previousTurn ? !previousTurn.sentenceTurn : true;
-  const pendingTurn = await createNewTurn(game, player, sentenceTurn);
+  const previousTurn = game.turns[game.turns.length - 1];
+  game = await createNewTurn(game, player, previousTurn ? !previousTurn.sentenceTurn : true);
+  const pendingTurn = game.turns[game.turns.length - 1];
   const now = Date.now();
   if (!previousTurn) {
     console.log(`Created game ${gameId} and initiating turn ${pendingTurn.id}...`);

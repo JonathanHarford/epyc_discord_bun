@@ -4,7 +4,7 @@ import { commands } from "./commands";
 import { deployCommands } from "./deploy_commands";
 import { DiscordService, discord2Interaction } from './services/discordChannel';
 import { render } from './copy';
-import { findTurnsTimedout, expireTurn, findGamesTimedout, expireGame } from './auditor'
+import { findTurnsTimedout, expireTurn, findGamesTimedout, finishGame } from './auditor'
 
 // create a new Client instance
 const client = new Client({
@@ -37,7 +37,7 @@ client.once(Events.ClientReady, async (c) => {
         // For each game that has timed out, let the players know it is done 
         // and post the results
         const games = await findGamesTimedout();
-        for await (const messageArray of await Promise.all(games.flatMap(expireGame))) {
+        for await (const messageArray of await Promise.all(games.flatMap(finishGame))) {
             for await (const message of messageArray) {
                 await chatService.sendChannelMessage({
                     channelId: message.channelId!,

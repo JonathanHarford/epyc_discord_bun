@@ -1,10 +1,10 @@
 import Discord from 'discord.js';
-import { PrismaClient, Game as pcGame, Turn as pcTurn, Player as pcPlayer, Media as pcMedia} from '@prisma/client'
+import * as prisma from '@prisma/client'
 
-export type TurnWithGame = pcTurn & { game: Game, media?: Media };
-export type Game = pcGame;
-export type Player = pcPlayer;
-export type Media = pcMedia;
+export type Turn = prisma.Turn & { media: Media | null | undefined }; //TODO oh come on
+export type Game = prisma.Game & { turns: Turn[] };
+export type Player = prisma.Player;
+export type Media = prisma.Media;
 export type PlayerId = number;
 export type DiscordUserId = string;
 export type ChannelId = string;
@@ -66,8 +66,6 @@ export interface ChannelMessageRender {
   channelId: ChannelId;
   message: MessageRender;
 }
-
-
 
 export interface ChatService {
   sendDirectMessage(message: DirectMessageRender): Promise<void>;

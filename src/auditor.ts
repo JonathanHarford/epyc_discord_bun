@@ -1,8 +1,9 @@
 import * as db from "./db";
-import { TurnWithGame, Game, Message, MessageCode } from "./types";
+import { Game, Message, MessageCode } from "./types";
 import { config } from "./config";
 
-export const findTurnsTimedout = async (): Promise<TurnWithGame[]> => {
+// TODO: move to db?
+export const findTurnsTimedout = async (): Promise<Game[]> => {
     const now = Date.now();
     return await db.fetchTimedoutPendingTurns({
         pictureCutoff: now - config.PICTURE_TIMEOUT * 1000,
@@ -10,24 +11,7 @@ export const findTurnsTimedout = async (): Promise<TurnWithGame[]> => {
     });
 }
 
-export const expireTurn = async (turn: TurnWithGame): Promise<Message> => {
-    const turns = await db.getOtherTurns(turn);
-    const isOnlyTurn = turns.length === 1;
-    const turnType = isOnlyTurn ? 'sentenceInitiate' :
-        (turn.sentenceTurn ? 'sentence' : 'picture');
-    console.log(`Turn ${turn.id} (${turnType}) has expired...`);
-
-    if (isOnlyTurn) {
-        console.log(`...and it was the only turn on game ${turn.gameId}, so that gets deleted too.`)
-        await db.deleteGame(turn.game);
-    } else await db.deleteTurn(turn);
-    return {
-        messageCode: 'timeoutTurn' as MessageCode,
-        gameId: turn.gameId,
-        playerId: turn.playerId,
-    }
-}
-
+// TODO: move to db?
 export const findGamesTimedout = async (): Promise<Game[]> => {
     const now = Date.now();
     return await db.fetchTimedoutPendingGames(
@@ -35,7 +19,25 @@ export const findGamesTimedout = async (): Promise<Game[]> => {
     );
 }
 
-export const expireGame = async (game: Game): Promise<Message[]> => {
+export const expireTurn = async (game: Game): Promise<Message> => {
+    const isOnlyTurn = game.turns.length === 1;
+    const turn = game.turns[game.turns.length - 1];
+    const turnType = isOnlyTurn ? 'sentenceInitiate' :
+        (turn.sentenceTurn ? 'sentence' : 'picture');
+    console.log(`Turn ${turn.id} (${turnType}) has expired...`);
+
+    if (isOnlyTurn) {
+        console.log(`...and it was the only turn on game ${turn.gameId}, so that gets deleted too.`)
+        await db.deleteGame(game);
+    } else await db.deleteTurn(game);
+    return {
+        messageCode: 'timeoutTurn' as MessageCode,
+        gameId: turn.gameId,
+        playerId: turn.playerId,
+    }
+}
+
+export const finishGame = async (game: Game): Promise<Message[]> => {
     console.log(`Game ${game.id} has completed...`);
     db.updateGameStatus(game, { done: true });
     // const turns = await db.getTurns(game);
