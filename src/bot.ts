@@ -50,7 +50,7 @@ client.once(Events.ClientReady, async (c) => {
                 });
             }
         }
-    }, 1000 * 5); // Todo make this every minute
+    }, config.HEARTBEAT * 1000);
 });
 
 client.on("guildCreate", async (guild) => {
