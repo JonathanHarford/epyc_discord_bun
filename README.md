@@ -47,10 +47,10 @@ Consider:
 * Store pictures in database
 * Sort out userId/PlayerId/etc. Should use playerId everywhere except Discord
 * Finish full test
+* clear old commands
 
 ### Todo
 
-* clear old commands
 * Create full finish game message(s)
 * Audit queries/indices
 * Add prompt to appropriate places

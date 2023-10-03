@@ -16,6 +16,7 @@ export const render = (message: Message): MessageRender => {
         sentence,
         pictureUrl,
         gameId,
+        discordUserId,
         playerId,
     } = message;
     const timeString = timeRemaining && countdown(timeRemaining);
@@ -80,7 +81,7 @@ export const render = (message: Message): MessageRender => {
             description: "You submitted a sentence, but it was empty!",
         };
         case "timeoutTurn": return {
-            playerId: playerId,
+            playerId,
             title: "timeout",
             description: `Your turn in Game #${gameId} timed out!`,
         };
@@ -88,15 +89,12 @@ export const render = (message: Message): MessageRender => {
             title: "game done",
             description: `Game #${gameId} timed out! It's done!`,
         };
-        case "timeoutGameTurn": 
-        const r =  pictureUrl ?           {
-            description: `${playerId} drew:`,
-            imageUrl: pictureUrl,
-    }:  { description: `${playerId} wrote "${sentence}"` };
-        return {
-            playerId: playerId,
-            ...r,
-        };
+        case "timeoutGameTurn":
+            return pictureUrl ? {
+                description: `${discordUserId} drew:`,
+                imageUrl: pictureUrl,
+            } : { description: `${discordUserId} wrote "${sentence}"` };
+
         default:
             throw new Error(`Unknown messageCode: ${messageCode}`);
     }

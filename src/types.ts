@@ -35,6 +35,7 @@ export type MessageCode =
 
 export interface Message {
   playerId?: PlayerId,
+  discordUserId?: DiscordUserId,
   messageCode: MessageCode,
   channelId?: ChannelId,
 

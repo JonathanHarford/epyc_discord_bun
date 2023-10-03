@@ -219,9 +219,20 @@ test("A full game", async () => {
 
     const gameDoneMessages = await finishGame(game1!);
     expect(gameDoneMessages).toBeDefined();
-    expect(gameDoneMessages[0].messageCode).toEqual('timeoutGameIntro');
-    expect(gameDoneMessages[0].channelId).toEqual(channelId);
-
+    const cleanedMessages = gameDoneMessages.map(m => {
+        delete m.playerId;
+        delete m.timeRemaining;
+        delete m.gameId;
+        return m;
+    });
+    expect(cleanedMessages).toEqual([
+        { messageCode: 'timeoutGameIntro', channelId },
+        { messageCode: 'gameDoneTurn', discordUserId: 'alice', sentence: 'g1s1'},
+        { messageCode: 'gameDoneTurn', discordUserId: 'bob', picture: pic1.url },
+        { messageCode: 'gameDoneTurn', discordUserId: 'carol', sentence: 'g1s2'},
+        // { messageCode: 'timeoutGameEnd', channelId }
+    ]);
+    
     // epyc-bot → #epyc: Game #1 is finished! Here are the turns:
     // epyc-bot → #epyc: Alice: The cat sat on the mat.
     // epyc-bot → #epyc: Bob: [Bob's picture]

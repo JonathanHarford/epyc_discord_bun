@@ -40,24 +40,23 @@ export const expireTurn = async (game: Game): Promise<Message> => {
 export const finishGame = async (game: Game): Promise<Message[]> => {
     console.log(`Game ${game.id} has completed...`);
     db.updateGameStatus(game, { done: true });
-    // const turns = await db.getTurns(game);
-    // const messages = await Promise.all(turns.map(async (turn) => {
-    //     const player = await db.fetchPlayer(turn.playerId);
-    //     const sentence = turn.sentenceTurn ? turn.sentence : undefined;
-    //     const picture = turn.sentenceTurn ? turn.media : undefined;
-    //     return {
-    //         messageCode: 'gameDoneTurn' as MessageCode,
-    //         gameId: game.id,
-    //         playerId: turn.playerId,
-    //         sentence,
-    //         picture,
-    //     } as Message;
-    // }));
+    const messages = await Promise.all(game.turns.map(async (turn) => {
+        const player = await db.fetchPlayer(turn.playerId);
+        const sentence = turn.sentenceTurn ? turn.sentence : undefined;
+        const picture = turn.sentenceTurn ? turn.media : undefined;
+        return {
+            messageCode: 'gameDoneTurn' as MessageCode,
+            gameId: game.id,
+            discordUserId: player?.discordUserId,
+            sentence,
+            picture,
+        } as Message;
+    }));
     return [{
         messageCode: 'timeoutGameIntro' as MessageCode,
         gameId: game.id,
         channelId: game.discordChannelId,
     } as Message,
-    // ...messages
+    ...messages
 ];
 }
