@@ -23,7 +23,9 @@ Consider:
 * How do we keep one player from initiating lots of games?
 * Do we need /submit? Can we just use /play?
 * send player a reminder when turn will timeout soon
-* since we almost always need to include a game when fetching a turn, can we just always work with a Game (w/ Turns & Media) object?
+
+### Bugs
+
 
 ## STATUS
 
@@ -48,6 +50,9 @@ Consider:
 * Sort out userId/PlayerId/etc. Should use playerId everywhere except Discord
 * Finish full test
 * clear old commands
+* Refactor to center around Game objects
+* Fix: Game updatedAt isn't getting updated, so games end based on their start time, not the last time someone took a turn.
+* Fix: Add username to end message
 
 ### Todo
 

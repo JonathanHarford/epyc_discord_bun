@@ -7,7 +7,7 @@ export const data = {
 }
 
 export const execute = async (interaction: Interaction): Promise<Message> => {
-	const player = await createOrFindPlayer(interaction.userId);
+	const player = await createOrFindPlayer(interaction.userId, interaction.username);
 	const stats = await getStats(player);
 	return {
 		...stats,

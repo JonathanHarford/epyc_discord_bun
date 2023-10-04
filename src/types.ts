@@ -39,6 +39,7 @@ export interface Message {
   messageCode: MessageCode,
   channelId?: ChannelId,
 
+  discordUsername?: string,
   inProgress?: number,
   yoursDone?: number,
   yoursInProgress?: number,
@@ -78,6 +79,7 @@ export interface ChatService {
 
 export interface Interaction {
   userId: DiscordUserId;
+  username: string;
   serverId?: string;
   channelId: string;
   turnId?: string;

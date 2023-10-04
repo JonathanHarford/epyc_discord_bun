@@ -10,26 +10,26 @@ import {
 
 const prisma = new PrismaClient()
 
-export const createOrFindPlayer = async (discordUserId: DiscordUserId): Promise<Player> => {
-    return prisma.player.upsert({
-        where: { discordUserId: discordUserId },
-        update: {},
-        create: { discordUserId: discordUserId },
-    });
+export const createOrFindPlayer = async (discordUserId: DiscordUserId, discordUsername: string): Promise<Player> => {
+    console.log(`Creating or finding player ${discordUserId}/${discordUsername}...`);
+    const user = await prisma.player.findFirst({ where: { discordUserId }, });
+    if (user) return user;
+    else return prisma.player.create({ data: { discordUserId: discordUserId, discordUsername: discordUsername }});
 }
 
-export const fetchPlayer = async (playerId: PlayerId): Promise<Player | null> => {
-    return prisma.player.findUnique({ where: { id: playerId }, });
+export const fetchPlayer = async (playerId: PlayerId): Promise<Player> => {
+    return prisma.player.findUnique({ where: { id: playerId }, }) as Promise<Player>;
 }
 
-export const fetchGame = async (gameId: number): Promise<Game | null> => {
-    return prisma.game.findUnique({
+export const touchGame = async (gameId: number): Promise<Game> => {
+    return prisma.game.update({
         where: { id: gameId },
+        data: { updatedAt: new Date() },
         include: { turns: { include: { media: true } } },
     }) as Promise<Game>;
 }
 
-export const findPendingGame = async (player: Player): Promise<Game | null> => {
+export const findPendingGame = async (player: Player): Promise<Game> => {
     return prisma.game.findFirst({
         where: {
             done: false,
@@ -44,14 +44,14 @@ export const findPendingGame = async (player: Player): Promise<Game | null> => {
     }) as Promise<Game>;
 }
 
-export const findAvailableGame = async (player: Player): Promise<Game | null> => {
+export const findAvailableGame = async (player: Player): Promise<Game> => {
     console.log(`Finding available game for player ${player.id}...`);
     return prisma.game.findFirst({
         where: {
             done: false,
             turns: {
                 every: { done: true },
-                none: { player: player },
+       //         none: { player: player },
             },
         },
         include: { turns: { include: { media: true } } },
@@ -85,7 +85,7 @@ export const createNewTurn = async (game: Game, player: Player, sentenceTurn: bo
             sentenceTurn,
         },
     });
-    return fetchGame(game.id) as Promise<Game>;
+    return touchGame(game.id) as Promise<Game>;
 }
 
 export const finishSentenceTurn = async (turnId: number, sentence: string): Promise<Game> => {
@@ -98,7 +98,7 @@ export const finishSentenceTurn = async (turnId: number, sentence: string): Prom
             done: true
         }
     });
-    return fetchGame(t.gameId) as Promise<Game>;
+    return touchGame(t.gameId) as Promise<Game>;
 }
 
 export const finishPictureTurn = async (turnId: number, contentInput: MediaInput): Promise<Game> => {
@@ -121,7 +121,7 @@ export const finishPictureTurn = async (turnId: number, contentInput: MediaInput
         data: { done: true }
     });
 
-    return fetchGame(t.gameId) as Promise<Game>;
+    return touchGame(t.gameId) as Promise<Game>;
 }
 
 export const getStats = async (player: Player): Promise<{ inProgress: number, yoursDone: number, yoursInProgress: number }> => {
@@ -201,6 +201,7 @@ export const deleteTurn = async (game: Game) => {
             id: game.turns[game.turns.length - 1].id,
         },
     });
+    await touchGame(game.id);
 }
 
 export const updateGameStatus = async (game: Game, status: { done: boolean }): Promise<Game> => {

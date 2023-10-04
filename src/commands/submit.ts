@@ -15,8 +15,8 @@ export const data = {
 }
 
 export const execute = async (interaction: Interaction): Promise<Message> => {
-    const { userId, sentence, picture } = interaction;
-    const player = await createOrFindPlayer(userId);
+    const { sentence, picture } = interaction;
+    const player = await createOrFindPlayer(interaction.userId, interaction.username);
     // Check if the player has a pending turn
     let game = await findPendingGame(player);
     const pendingTurn = game?.turns[game.turns.length - 1];

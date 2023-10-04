@@ -10,9 +10,9 @@ export const discord2Interaction = async (discordInteraction: Discord.CommandInt
     .then(arrayBuffer => Buffer.from(arrayBuffer));
 
   const sentence = discordInteraction.options?.get("sentence")?.value as string;
-
   return {
     userId: discordInteraction.user.id,
+    username: discordInteraction.user.username,
     serverId: discordInteraction.guildId || undefined,
     channelId: discordInteraction.channelId,
     picture: pictureAttachment && pictureAttachment.contentType && pictureContent && {

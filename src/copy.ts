@@ -16,7 +16,7 @@ export const render = (message: Message): MessageRender => {
         sentence,
         pictureUrl,
         gameId,
-        discordUserId,
+        discordUsername,
         playerId,
     } = message;
     const timeString = timeRemaining && countdown(timeRemaining);
@@ -45,11 +45,11 @@ export const render = (message: Message): MessageRender => {
         };
         case "playPicture": return {
             title: "draw for me",
-            description: `You have ${timeString} to draw a picture of this sentence: "${sentence}"`,
+            description: `You have ${timeString} to \`/submit\` a picture of this sentence: "${sentence}"`,
         };
         case "playSentence": return {
             title: "write for me",
-            description: `You have ${timeString} to write a sentence of this picture:`,
+            description: `You have ${timeString} to \`/submit\` a sentence of this picture:`,
             imageUrl: pictureUrl,
         };
         case "submitButNo": return {
@@ -91,9 +91,9 @@ export const render = (message: Message): MessageRender => {
         };
         case "timeoutGameTurn":
             return pictureUrl ? {
-                description: `${discordUserId} drew:`,
+                description: `${discordUsername} drew:`,
                 imageUrl: pictureUrl,
-            } : { description: `${discordUserId} wrote "${sentence}"` };
+            } : { description: `${discordUsername} wrote "${sentence}"` };
         case "timeoutGameEnd": return {
                 description: `Thanks for playing!`,
         };
