@@ -43,6 +43,8 @@ export interface Message {
   yoursDone?: number,
   yoursInProgress?: number,
   timeRemaining?: number,
+  startedAt?: Date,
+  endedAt?: Date,
 
   sentence?: string,
   pictureUrl?: string,

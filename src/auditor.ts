@@ -44,7 +44,7 @@ export const finishGame = async (game: Game): Promise<Message[]> => {
         const player = await db.fetchPlayer(turn.playerId);
         const content = turn.sentenceTurn ? {sentence: turn.sentence} : {pictureUrl: turn.media!.url};
         return {
-            messageCode: 'gameDoneTurn' as MessageCode,
+            messageCode: 'timeoutGameTurn' as MessageCode,
             gameId: game.id,
             discordUserId: player?.discordUserId,
             ...content,
@@ -55,6 +55,10 @@ export const finishGame = async (game: Game): Promise<Message[]> => {
         gameId: game.id,
         channelId: game.discordChannelId,
     } as Message,
-    ...messages
-];
+    ...messages,
+    {
+        messageCode: 'timeoutGameEnd' as MessageCode,
+        startedAt: game.createdAt,
+        endedAt: game.updatedAt,
+    }];
 }

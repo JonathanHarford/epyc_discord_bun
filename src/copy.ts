@@ -87,14 +87,16 @@ export const render = (message: Message): MessageRender => {
         };
         case "timeoutGameIntro": return {
             title: "game done",
-            description: `Game #${gameId} timed out! It's done!`,
+            description: `Game #${gameId} is done!`,
         };
         case "timeoutGameTurn":
             return pictureUrl ? {
                 description: `${discordUserId} drew:`,
                 imageUrl: pictureUrl,
             } : { description: `${discordUserId} wrote "${sentence}"` };
-
+        case "timeoutGameEnd": return {
+                description: `Thanks for playing!`,
+        };
         default:
             throw new Error(`Unknown messageCode: ${messageCode}`);
     }
