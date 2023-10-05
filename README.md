@@ -52,11 +52,11 @@ Consider:
 * clear old commands
 * Refactor to center around Game objects
 * Fix: Game updatedAt isn't getting updated, so games end based on their start time, not the last time someone took a turn.
-* Fix: Add username to end message
+* Create full finish game message(s)
 
 ### Todo
 
-* Create full finish game message(s)
+* Fix: slash command permissions
 * Resize image on upload
 * Audit queries/indices
 * Add prompt to appropriate places

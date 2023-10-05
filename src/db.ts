@@ -51,7 +51,7 @@ export const findAvailableGame = async (player: Player): Promise<Game> => {
             done: false,
             turns: {
                 every: { done: true },
-       //         none: { player: player },
+                none: { player: player }, // Comment this out to allow players to play multiple turns in a game
             },
         },
         include: { turns: { include: { media: true } } },
