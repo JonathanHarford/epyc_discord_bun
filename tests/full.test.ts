@@ -31,6 +31,7 @@ afterAll(async () => {
 
 const doHelp = async (interaction: any): Promise<Message> => {
     console.log("/help");
+    interaction.username = interaction.userId;
     return c.help.execute({
         ...interaction,
         serverId,
@@ -39,6 +40,7 @@ const doHelp = async (interaction: any): Promise<Message> => {
 }
 const doStatus = async (interaction: any): Promise<Message> => {
     console.log("/status");
+    interaction.username = interaction.userId;
     return c.status.execute({
         ...interaction,
         serverId,
@@ -47,6 +49,7 @@ const doStatus = async (interaction: any): Promise<Message> => {
 }
 const doPlay = async (interaction: any): Promise<Message> => {
     console.log("/play");
+    interaction.username = interaction.userId;
     return c.play.execute({
         ...interaction,
         serverId,
@@ -55,6 +58,7 @@ const doPlay = async (interaction: any): Promise<Message> => {
 }
 const doSubmit = async (interaction: any): Promise<Message> => {
     console.log("/submit", interaction.sentence || interaction.picture?.url);
+    interaction.username = interaction.userId;
     return c.submit.execute({
         ...interaction,
         serverId,
@@ -233,17 +237,23 @@ test("A full game", async () => {
         delete m.playerId;
         delete m.timeRemaining;
         delete m.gameId;
+        if (m.startedAt) expect(m.startedAt.valueOf()).toBeGreaterThan(0);
+        if (m.startedAt && m.endedAt)  expect(m.endedAt!.valueOf()).toBeGreaterThan(m.startedAt!.valueOf());
+        delete m.startedAt
+        delete m.endedAt
         if (m.pictureUrl === undefined) delete m.pictureUrl;
         if (m.sentence === undefined) delete m.sentence;
+        expect(m.channelId).toEqual(channelId);
+        delete m.channelId;
         return m;
     });
     expect(cleanedMessages).toEqual([
-        { messageCode: 'timeoutGameIntro', channelId },
-        { messageCode: 'gameDoneTurn', discordUserId: 'alice', sentence: 'g1s1'},
-        { messageCode: 'gameDoneTurn', discordUserId: 'bob', pictureUrl: pic1.url },
-        { messageCode: 'gameDoneTurn', discordUserId: 'carol', sentence: 'g1s2'},
-        { messageCode: 'gameDoneTurn', discordUserId: 'dmitri', pictureUrl: pic3.url },
-        // { messageCode: 'timeoutGameEnd', channelId }
+        { messageCode: 'timeoutGameIntro' },
+        { messageCode: 'timeoutGameTurn', discordUsername: 'alice', sentence: 'g1s1'},
+        { messageCode: 'timeoutGameTurn', discordUsername: 'bob', pictureUrl: pic1.url },
+        { messageCode: 'timeoutGameTurn', discordUsername: 'carol', sentence: 'g1s2'},
+        { messageCode: 'timeoutGameTurn', discordUsername: 'dmitri', pictureUrl: pic3.url },
+        { messageCode: 'timeoutGameEnd' }
     ]);
     
     // epyc-bot → #epyc: Game #1 is finished! Here are the turns:
