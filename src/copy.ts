@@ -1,7 +1,20 @@
 import { Message, MessageRender } from "./types";
 
 export const countdown = (msec: number): string => {
+    // format 3 days, 2 hours, 34 minutes, 48 seconds as: 3d 2h 34m 48s
     let seconds = Math.floor(msec / 1000);
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    let days = Math.floor(hours / 24);
+    seconds %= 60;
+    minutes %= 60;
+    hours %= 24;
+    const parts = [];
+    if (days) parts.push(`${days}d`);
+    if (hours) parts.push(`${hours}h`);
+    if (minutes) parts.push(`${minutes}m`);
+    parts.push(`${seconds}s`);
+    return parts.join(' ');
 }
 
 export const render = (message: Message): MessageRender => {
