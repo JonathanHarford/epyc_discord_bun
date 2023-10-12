@@ -1,6 +1,6 @@
 import * as db from "./db";
 import { Game, Message, MessageCode } from "./types";
-import { config } from "./config";
+import config from "./config";
 
 // TODO: move to db?
 export const findTurnsTimedout = async (): Promise<Game[]> => {

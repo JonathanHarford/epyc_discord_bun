@@ -1,5 +1,5 @@
 import Discord from 'discord.js';
-import { config } from "../config";
+import config from "../config";
 import { Interaction, DirectMessageRender, ReplyRender, ChannelMessageRender, MessageRender, ChatService } from '../types';
 import * as db from '../db';
 

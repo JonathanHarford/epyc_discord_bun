@@ -1,5 +1,5 @@
 import { findPendingGame, createOrFindPlayer, findAvailableGame, createNewGame, createNewTurn} from "../db";
-import { config } from "../config";
+import config from "../config";
 import { Interaction, Message, MessageCode } from '../types';
 
 export const data = {

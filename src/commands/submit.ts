@@ -1,5 +1,6 @@
 import { createOrFindPlayer, findPendingGame, finishSentenceTurn, finishPictureTurn } from "../db";
 import { Interaction, Message } from '../types';
+import config from "../config";
 
 export const data = {
     name: "submit",

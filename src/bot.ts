@@ -1,5 +1,5 @@
 import { Client, Events, GatewayIntentBits } from 'discord.js';
-import { config } from "./config";
+import config from "./config";
 import { commands } from "./commands";
 import { deleteCommands, deployCommands } from "./deploy_commands";
 import { DiscordService, discord2Interaction } from './services/discordChannel';

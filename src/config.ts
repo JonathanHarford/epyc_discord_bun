@@ -7,13 +7,15 @@ const {
   HEARTBEAT,
   DATABASE_URL,
   CHANNEL,
+  PICTURE_WIDTH,
+  PICTURE_HEIGHT,
 } = Bun.env;
 
 if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID) {
   throw new Error("Missing environment variables");
 }
 
-export const config = {
+export default {
   DISCORD_TOKEN,
   DISCORD_CLIENT_ID,
   SENTENCE_TIMEOUT: SENTENCE_TIMEOUT && parseInt(SENTENCE_TIMEOUT) || 60 * 10,
@@ -22,4 +24,6 @@ export const config = {
   HEARTBEAT: HEARTBEAT && parseInt(HEARTBEAT) || 60,
   DATABASE_URL,
   CHANNEL,
+  PICTURE_WIDTH: PICTURE_WIDTH && parseInt(PICTURE_WIDTH) || 50,
+  PICTURE_HEIGHT: PICTURE_HEIGHT && parseInt(PICTURE_HEIGHT) || 50,
 };
