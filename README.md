@@ -26,6 +26,7 @@ Consider:
 
 ### Bugs
 
+* When the bot sends the picture (either in response to /play or the game ending) it isn't able to convert the binary blob from the databse back into a picture.
 
 ## STATUS
 
@@ -53,11 +54,14 @@ Consider:
 * Refactor to center around Game objects
 * Fix: Game updatedAt isn't getting updated, so games end based on their start time, not the last time someone took a turn.
 * Create full finish game message(s)
-
-### Todo
-
 * Fix: slash command permissions
 * Resize image on upload
+
+### Todo
+* instead of having types that could have a picture or could have a sentence, make it so it must have one or the other.
+* Run on Heroku or something
+* Add debug commands
 * Audit queries/indices
 * Add prompt to appropriate places
 * Use table for status
+* Allow for players to 
