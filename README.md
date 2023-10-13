@@ -66,4 +66,6 @@ Consider:
 * Audit queries/indices
 * Add prompt to appropriate places
 * Use table for status
-* Allow for players to 
+* Send reminders before turns expire
+* Minimum number of turns
+* Allow for players to play more than once in a game if enough turns have elapsed
