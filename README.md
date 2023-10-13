@@ -58,9 +58,9 @@ Consider:
 * Fix: slash command permissions
 * Resize image on upload
 * Give up on storing/resizing images
+* instead of having types that could have a picture or could have a sentence, make it so it must have one or the other.
 
 ### Todo
-* instead of having types that could have a picture or could have a sentence, make it so it must have one or the other.
 * Run on Heroku or something
 * Add debug commands
 * Audit queries/indices

@@ -1,7 +1,11 @@
 import Discord from 'discord.js';
 import * as prisma from '@prisma/client'
 
-export type Turn = prisma.Turn;
+export type Turn = Omit<prisma.Turn, 'sentence' | 'imageUrl'> & {
+  sentence?: string;
+  imageUrl?: string;
+};
+
 export type Game = prisma.Game & { turns: Turn[] };
 export type Player = prisma.Player;
 export type PlayerId = number;

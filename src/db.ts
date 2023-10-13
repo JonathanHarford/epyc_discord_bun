@@ -50,7 +50,7 @@ export const findAvailableGame = async (player: Player): Promise<Game> => {
             done: false,
             turns: {
                 every: { done: true },
-                // none: { player: player }, // Comment this out to allow players to play multiple turns in a game
+                none: { player: player }, // Comment this out to allow players to play multiple turns in a game
             },
         },
         include: { turns: true },
@@ -65,7 +65,7 @@ export const createNewGame = async (discordGuildId: string, discordChannelId: st
             discordChannelId,
         },
         include: { turns: true },
-    });
+    }) as Promise<Game>;
 }
 
 export const createNewTurn = async (game: Game, player: Player, sentenceTurn: boolean): Promise<Game> => {
@@ -166,7 +166,7 @@ return prisma.game.findMany({
             }
         },
         include: { turns: true },
-    });
+    }) as Promise<Game[]>;
 
 }
 
@@ -179,7 +179,7 @@ export const fetchTimedoutPendingGames = async (gameCutoff: number): Promise<Gam
             },
         },
         include: { turns: true },
-    });
+    }) as Promise<Game[]>;
     return games;
 }
 
@@ -200,7 +200,7 @@ export const updateGameStatus = async (game: Game, status: { done: boolean }): P
         },
         data: status,
         include: { turns: true },
-    });
+    }) as Promise<Game>;
 }
 
 export const deleteGame = async (game: Game) => {
