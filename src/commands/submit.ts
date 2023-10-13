@@ -16,7 +16,7 @@ export const data = {
 }
 
 export const execute = async (interaction: Interaction): Promise<Message> => {
-    const { sentence, picture } = interaction;
+    const { sentence, imageUrl } = interaction;
     const player = await createOrFindPlayer(interaction.userId, interaction.username);
     // Check if the player has a pending turn
     let game = await findPendingGame(player);
@@ -29,7 +29,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
         console.log(`Pending turn ${pendingTurn.id} is a sentence...`)
 
         // If the pending turn is a sentence and they sent a picture, correct them
-        if (picture) return { messageCode: "submitSentenceButPicture" };
+        if (imageUrl) return { messageCode: "submitSentenceButPicture" };
 
         // If the sentence is empty, correct them
         else if (!sentence) return { messageCode: "submitSentenceButEmpty" };
@@ -51,21 +51,15 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
         // If the pending turn is a picture and they sent a sentence, correct them
         if (sentence) return { messageCode: "submitPictureButSentence" };
 
-        else if (!picture || !picture.url || !picture.contentType) {
+        else if (!imageUrl) {
             return { messageCode: "submitPictureButEmpty" };
         } else {
             // Update the turn
             console.log("Submitting picture...")
             await finishPictureTurn(
-                pendingTurn.id,
-                {
-                    url: picture.url,
-                    contentType: picture.contentType,
-                    content: await fetch(picture.url)
-                        .then(response => response.arrayBuffer())
-                        .then(arrayBuffer => Buffer.from(arrayBuffer)),
-                });
-
+                pendingTurn.id, 
+                imageUrl,
+            );
             return {
                 messageCode: "submitPicture",
                 gameId: game!.id,

@@ -5,21 +5,13 @@ import * as db from '../db';
 
 export const discord2Interaction = async (discordInteraction: Discord.CommandInteraction): Promise<Interaction> => {
   const pictureAttachment = discordInteraction.options?.get("picture")?.attachment;
-  const pictureContent = pictureAttachment && await fetch(pictureAttachment.url)
-    .then(response => response.arrayBuffer())
-    .then(arrayBuffer => Buffer.from(arrayBuffer));
-
   const sentence = discordInteraction.options?.get("sentence")?.value as string;
   return {
     userId: discordInteraction.user.id,
     username: discordInteraction.user.username,
     serverId: discordInteraction.guildId || undefined,
     channelId: discordInteraction.channelId,
-    picture: pictureAttachment && pictureAttachment.contentType && pictureContent && {
-      url: pictureAttachment.url,
-      contentType: pictureAttachment.contentType,
-      content: pictureContent,
-    } || undefined,
+    imageUrl: pictureAttachment?.url || undefined,
     sentence: sentence || undefined,
   }
 }

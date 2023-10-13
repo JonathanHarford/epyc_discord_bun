@@ -22,18 +22,6 @@ model Game {
   @@index([id, done], map: "idx_game") // Why?
 }
 
-model Media {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt
-  url         String   @unique
-  contentType String
-  content     Bytes
-
-  turn   Turn @relation(fields: [turnId], references: [id], onDelete: Cascade)
-  turnId Int  @unique
-}
-
 model Turn {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now()) @db.Timestamptz(6)
@@ -41,7 +29,7 @@ model Turn {
   done         Boolean  @default(false)
   sentenceTurn Boolean  @default(true)
   sentence     String?
-  media        Media?
+  imageUrl     String?
 
   game   Game @relation("GameToTurn", fields: [gameId], references: [id], onUpdate: Cascade)
   gameId Int

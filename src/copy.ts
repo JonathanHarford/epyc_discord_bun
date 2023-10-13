@@ -26,7 +26,7 @@ export const render = (message: Message): MessageRender => {
         yoursInProgress,
         timeRemaining,
         sentence,
-        pictureUrl,
+        imageUrl,
         gameId,
         discordUsername,
         playerId,
@@ -62,7 +62,7 @@ export const render = (message: Message): MessageRender => {
         case "playSentence": return {
             title: "write for me",
             description: `You have ${timeString} to \`/submit\` a sentence of this picture:`,
-            imageUrl: pictureUrl,
+            imageUrl: imageUrl,
         };
         case "submitButNo": return {
             title: "try `/play`",
@@ -102,9 +102,9 @@ export const render = (message: Message): MessageRender => {
             description: `Game #${gameId} is done!`,
         };
         case "timeoutGameTurn":
-            return pictureUrl ? {
+            return imageUrl ? {
                 description: `${discordUsername} drew:`,
-                imageUrl: pictureUrl,
+                imageUrl: imageUrl,
             } : { description: `${discordUsername} wrote "${sentence}"` };
         case "timeoutGameEnd": return {
                 description: `Thanks for playing!`,

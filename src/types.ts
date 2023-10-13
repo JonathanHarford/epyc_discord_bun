@@ -1,18 +1,12 @@
 import Discord from 'discord.js';
 import * as prisma from '@prisma/client'
 
-export type Turn = prisma.Turn & { media: Media | null | undefined }; //TODO oh come on
+export type Turn = prisma.Turn;
 export type Game = prisma.Game & { turns: Turn[] };
 export type Player = prisma.Player;
-export type Media = prisma.Media;
 export type PlayerId = number;
 export type DiscordUserId = string;
 export type ChannelId = string;
-export interface MediaInput {
-  url: string,
-  contentType: string,
-  content: Buffer,
-}
 
 export type MessageCode =
   "help" |
@@ -48,7 +42,7 @@ export interface Message {
   endedAt?: Date,
 
   sentence?: string,
-  pictureUrl?: string,
+  imageUrl?: string,
   gameId?: number,
 }
 export interface MessageRender {
@@ -84,10 +78,6 @@ export interface Interaction {
   channelId: string;
   turnId?: string;
   gameId?: string;
-  picture?: {
-    url: string,
-    contentType: string,
-    content: Buffer,
-  }
+  imageUrl?: string
   sentence?: string;
 }

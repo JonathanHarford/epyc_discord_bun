@@ -57,6 +57,7 @@ Consider:
 * Create full finish game message(s)
 * Fix: slash command permissions
 * Resize image on upload
+* Give up on storing/resizing images
 
 ### Todo
 * instead of having types that could have a picture or could have a sentence, make it so it must have one or the other.

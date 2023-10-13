@@ -32,7 +32,7 @@ export const execute = async (interaction: Interaction): Promise<Message> => {
       messageCode: 'playSentence',
       gameId,
       timeRemaining: pendingTurn.createdAt.getTime() + config.SENTENCE_TIMEOUT * 1000 - now,
-      pictureUrl: previousTurn.media!.url,
+      imageUrl: previousTurn.imageUrl!,
     }
 
   } else if (previousTurn.sentence) {

@@ -1,6 +1,6 @@
 import { expect, test, beforeEach, afterAll } from "bun:test";
 import { commands as c } from "../src/commands";
-import { Message, Game, Turn } from '../src/types';
+import { Message, Game } from '../src/types';
 import * as auditor from '../src/auditor';
 import * as db from '../src/db';
 
@@ -10,9 +10,9 @@ const alice = 'alice';
 const bob = 'bob';
 const carol = 'carol';
 const dmitri = 'dmitri';
-const pic1 = { url: 'https://i.imgur.com/aj1e4nD.jpg', contentType: 'image/jpeg' };
-const pic2 = { url: 'https://i.imgur.com/YKgGm9y.jpeg', contentType: 'image/jpeg' };
-const pic3 = { url: 'https://i.imgur.com/DzzQWsc.jpeg', contentType: 'image/jpeg' };
+const pic1 = 'https://i.imgur.com/aj1e4nD.jpg';
+const pic2 = 'https://i.imgur.com/YKgGm9y.jpeg';
+const pic3 = 'https://i.imgur.com/DzzQWsc.jpeg';
 
 let game1, game2, game3: number;
 const { PrismaClient } = require('@prisma/client')
@@ -20,7 +20,6 @@ const prisma = new PrismaClient({})
 
 beforeEach(async () => {
     console.log("Clearing database...");
-    await prisma.media.deleteMany();
     await prisma.turn.deleteMany();
     await prisma.game.deleteMany();
 })
@@ -57,7 +56,7 @@ const doPlay = async (interaction: any): Promise<Message> => {
     });
 }
 const doSubmit = async (interaction: any): Promise<Message> => {
-    console.log("/submit", interaction.sentence || interaction.picture?.url);
+    console.log("/submit", interaction.sentence || interaction.imageUrl);
     interaction.username = interaction.userId;
     return c.submit.execute({
         ...interaction,
@@ -69,7 +68,7 @@ const doSubmit = async (interaction: any): Promise<Message> => {
 const expirePendingTurn = async (gameId: number): Promise<Message> => {
     const game = await prisma.game.findUnique({
         where: { id: gameId },
-        include: { turns: { include: { media: true } } }
+        include: { turns: true }
     }) as Game;
     return auditor.expireTurn(game);
 }
@@ -77,7 +76,7 @@ const expirePendingTurn = async (gameId: number): Promise<Message> => {
 const finishGame = async (gameId: number): Promise<Message[]> => {
     const gameToExpire = await prisma.game.findUnique({
         where: { id: gameId },
-        include: { turns: { include: { media: true } } }
+        include: { turns: true }
     }) as Game;
     return auditor.finishGame(gameToExpire);
 }
@@ -155,7 +154,7 @@ test("A full game", async () => {
     expect(m.playerId).toBeDefined();
     expect(m.messageCode).toEqual('timeoutTurn');
 
-    expect(await doSubmit({ userId: bob, picture: pic1 }))
+    expect(await doSubmit({ userId: bob, imageUrl: pic1 }))
         .toEqual({ messageCode: 'submitButNo' });
 
     // Bob starts turn 2 in game 1
@@ -172,7 +171,7 @@ test("A full game", async () => {
     // epyc-bot: You have 23:59 to `/submit` a picture (larger than 200x200) that illustrates "The cat sat on the mat."
 
     // Bob submits turn 2 in game 1
-    expect(await doSubmit({ userId: bob, picture: pic1 }))
+    expect(await doSubmit({ userId: bob, imageUrl: pic1 }))
     .toEqual({ 
         messageCode: "submitPicture",
         gameId: game1,
@@ -189,10 +188,10 @@ test("A full game", async () => {
     m = await doPlay({ userId: carol })
     expect(m.messageCode).toEqual('playSentence');
     expect(m.gameId).toEqual(game1);
-    expect(m.pictureUrl).toEqual(pic1.url);
+    expect(m.imageUrl).toEqual(pic1);
     expect(m.timeRemaining).toBeGreaterThan(0);
 
-    expect(await doSubmit({ userId: carol, picture: pic2 }))
+    expect(await doSubmit({ userId: carol, imageUrl: pic2 }))
         .toEqual({ messageCode: "submitSentenceButPicture" });
 
     // Carol submits turn 3 in game 1
@@ -225,7 +224,7 @@ test("A full game", async () => {
     expect(m.timeRemaining).toBeGreaterThan(0);
     
     // Dmitri submits turn 4 in game 1
-    expect(await doSubmit({ userId: dmitri, picture: pic3 }))
+    expect(await doSubmit({ userId: dmitri, imageUrl: pic3 }))
     .toEqual({ gameId: game1, messageCode: "submitPicture" });
     
     expect(await doStatus({ userId: dmitri }))
@@ -241,7 +240,7 @@ test("A full game", async () => {
         if (m.startedAt && m.endedAt)  expect(m.endedAt!.valueOf()).toBeGreaterThan(m.startedAt!.valueOf());
         delete m.startedAt
         delete m.endedAt
-        if (m.pictureUrl === undefined) delete m.pictureUrl;
+        if (m.imageUrl === undefined) delete m.imageUrl;
         if (m.sentence === undefined) delete m.sentence;
         expect(m.channelId).toEqual(channelId);
         delete m.channelId;
@@ -250,9 +249,9 @@ test("A full game", async () => {
     expect(cleanedMessages).toEqual([
         { messageCode: 'timeoutGameIntro' },
         { messageCode: 'timeoutGameTurn', discordUsername: 'alice', sentence: 'g1s1'},
-        { messageCode: 'timeoutGameTurn', discordUsername: 'bob', pictureUrl: pic1.url },
+        { messageCode: 'timeoutGameTurn', discordUsername: 'bob', imageUrl: pic1 },
         { messageCode: 'timeoutGameTurn', discordUsername: 'carol', sentence: 'g1s2'},
-        { messageCode: 'timeoutGameTurn', discordUsername: 'dmitri', pictureUrl: pic3.url },
+        { messageCode: 'timeoutGameTurn', discordUsername: 'dmitri', imageUrl: pic3 },
         { messageCode: 'timeoutGameEnd' }
     ]);
     

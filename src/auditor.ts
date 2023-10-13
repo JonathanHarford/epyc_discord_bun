@@ -42,7 +42,7 @@ export const finishGame = async (game: Game): Promise<Message[]> => {
     db.updateGameStatus(game, { done: true });
     const messages = await Promise.all(game.turns.map(async (turn) => {
         const player = await db.fetchPlayer(turn.playerId);
-        const content = turn.sentenceTurn ? {sentence: turn.sentence} : {pictureUrl: turn.media!.url};
+        const content = turn.sentenceTurn ? {sentence: turn.sentence} : {imageUrl: turn.imageUrl};
         return {
             messageCode: 'timeoutGameTurn' as MessageCode,
             gameId: game.id,
