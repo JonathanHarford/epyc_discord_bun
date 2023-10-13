@@ -27,6 +27,7 @@ Consider:
 ### Bugs
 
 * When the bot sends the picture (either in response to /play or the game ending) it isn't able to convert the binary blob from the databse back into a picture.
+* See the bug.png
 
 ## STATUS
 

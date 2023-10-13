@@ -5,7 +5,7 @@ import {
     PlayerId,
     // Turn,
     Game,
-    MediaInput
+    MediaInput,
 } from './types';
 
 const prisma = new PrismaClient()
@@ -104,20 +104,16 @@ export const finishSentenceTurn = async (turnId: number, sentence: string): Prom
 export const finishPictureTurn = async (turnId: number, contentInput: MediaInput): Promise<Game> => {
     const media = await prisma.media.create({
         data: {
-            turn: {
-                connect: {
-                    id: turnId,
-                },
-            },
-            url: contentInput.url,
+            turn: { connect: { id: turnId } },
+            url: contentInput.url!,
             contentType: contentInput.contentType,
             content: contentInput.content,
-        },
+        }
     });
 
     // Update the turn to be "done" and include the media item
     const t = await prisma.turn.update({
-        where: { id: turnId, },
+        where: { id: turnId },
         data: { done: true }
     });
 
