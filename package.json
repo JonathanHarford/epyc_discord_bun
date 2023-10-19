@@ -11,7 +11,8 @@
   "scripts": {
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "test": "bun docker:up && bunx prisma db push && bun test --coverage"
+    "test": "bun docker:up && bunx prisma db push && bun test --coverage",
+    "bot": "bunx prisma db push && bun run src/bot.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.2.0",
