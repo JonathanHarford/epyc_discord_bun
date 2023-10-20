@@ -12,7 +12,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "test": "bun docker:up && bunx prisma db push && bun test --coverage",
-    "prestart": "bunx prisma db push",
+    "prestart": "bunx prisma generate && bunx prisma db push",
     "start": "bun src/bot.ts"
   },
   "dependencies": {
