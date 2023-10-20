@@ -12,14 +12,15 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "test": "bun docker:up && bunx prisma db push && bun test --coverage",
-    "bot": "bunx prisma db push && bun run src/bot.ts"
+    "prestart": "bunx prisma db push",
+    "start": "bun src/bot.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.2.0",
+    "@prisma/client": "^5.4.2",
     "discord.js": "^14.13.0",
     "jimp": "^0.22.10",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
-    "prisma": "^5.4.1"
+    "prisma": "^5.4.2"
   }
 }
