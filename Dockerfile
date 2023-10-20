@@ -1,7 +1,4 @@
 FROM oven/bun:latest
-WORKDIR /app
-COPY . .
-RUN bun install
 
 # https://github.com/oven-sh/bun/issues/4848
 RUN apt update \
@@ -12,6 +9,12 @@ RUN curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n \
     && rm n \
     && npm install -g n
 
+WORKDIR /app
+COPY . .
+RUN bun install
+
+
 RUN bunx prisma generate
 ENTRYPOINT ["bun", "run", "start"]
-# docker build -t epyc-discord . && docker run -d --rm --name epyc --env-file=.env.local epyc-discord && docker logs -f epyc`
+
+# docker build -t epyc-discord . && docker run -d --rm --name epyc --env-file=.env.local epyc-discord && docker logs -f epyc
