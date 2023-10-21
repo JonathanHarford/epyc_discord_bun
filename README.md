@@ -59,9 +59,13 @@ Consider:
 * Resize image on upload
 * Give up on storing/resizing images
 * instead of having types that could have a picture or could have a sentence, make it so it must have one or the other.
+* Run on Heroku or something
 
 ### Todo
-* Run on Heroku or something
+* Figure out why both versions of the bot are responding to epyc server D:
+* Tag players
+* Games shouldn't end unless they have at least 3 turns
+* Turns and Games should own their timeouts?
 * Add debug commands
 * Audit queries/indices
 * Add prompt to appropriate places
