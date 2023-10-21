@@ -53,15 +53,29 @@ export const render = (message: Message): MessageRender => {
         };
         case "playSentenceInitiating": return {
             title: "write for me",
-            description: `You're starting off Game #${gameId}! You have ${timeString} to write a sentence.`,
+            description: `You're starting off Game #${gameId}! You have ${timeString} to \`/submit\` an initiating sentence for the next player to draw. It should be drawable, but not ***too*** literal.`,
         };
         case "playPicture": return {
             title: "draw for me",
-            description: `You have ${timeString} to \`/submit\` a picture of this sentence: "${sentence}"`,
+            description: `You have ${timeString} to \`/submit\` a picture of this sentence: **${sentence}** Some tips: 
+
+            * ***Avoid words***, letters, and numbers!
+
+            * If you're taking a picture of your art on paper, ***light it well*** (no shadows!).
+
+            * You can make your pictures however you like! Sculpting, collage, painting, 3D renders, and animations  are encouraged.
+
+            * Whether photo or generated on a computer, please crop to just the picture."`,
         };
         case "playSentence": return {
             title: "write for me",
-            description: `You have ${timeString} to \`/submit\` a sentence of this picture:`,
+            description: `You have ${timeString} to \`/submit\` a sentence of the attached picture. Some tips:
+
+            * Be descriptive -- as disturbing or ribald as you like! 
+
+            * ***Decode a narrative!*** Is that a man sitting in a box, or Chuck the faceless yogi meditating in his cell? 
+            
+            * Interpretive beats literal. Include something undrawable!`,
             imageUrl: imageUrl,
         };
         case "submitButNo": return {
@@ -105,7 +119,7 @@ export const render = (message: Message): MessageRender => {
             return imageUrl ? {
                 description: `${discordUsername} drew:`,
                 imageUrl: imageUrl,
-            } : { description: `${discordUsername} wrote "${sentence}"` };
+            } : { description: `@${discordUsername} wrote "${sentence}"` };
         case "timeoutGameEnd": return {
                 description: `Thanks for playing!`,
         };
