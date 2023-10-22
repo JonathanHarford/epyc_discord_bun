@@ -47,7 +47,7 @@ export const finishGame = async (game: Game): Promise<Message[]> => {
             messageCode: 'timeoutGameTurn' as MessageCode,
             gameId: game.id,
             channelId: game.discordChannelId,
-            discordUsername: player!.discordUsername,
+            discordUserId: player!.discordUserId,
             ...content,
         } as Message;
     }));

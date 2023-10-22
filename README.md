@@ -60,16 +60,22 @@ Consider:
 * Give up on storing/resizing images
 * instead of having types that could have a picture or could have a sentence, make it so it must have one or the other.
 * Run on Heroku or something
+* Make dev version of the bot
+* Tag players
 
 ### Todo
-* Figure out why both versions of the bot are responding to epyc server D:
-* Tag players
+
 * Games shouldn't end unless they have at least 3 turns
 * Turns and Games should own their timeouts?
 * Add debug commands
 * Audit queries/indices
 * Add prompt to appropriate places
+* Make bot available on multiple servers
 * Use table for status
 * Send reminders before turns expire
 * Minimum number of turns
 * Allow for players to play more than once in a game if enough turns have elapsed
+
+### Notes
+
+Permissions Integer: 534723951680
