@@ -62,10 +62,10 @@ Consider:
 * Run on Heroku or something
 * Make dev version of the bot
 * Tag players
+* Games shouldn't end unless they have at least 3 turns
 
 ### Todo
 
-* Games shouldn't end unless they have at least 3 turns
 * Turns and Games should own their timeouts?
 * Add debug commands
 * Audit queries/indices
