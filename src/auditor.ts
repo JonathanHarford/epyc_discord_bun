@@ -13,10 +13,10 @@ export const findTurnsTimedout = async (): Promise<Game[]> => {
 
 // TODO: move to db?
 export const findGamesTimedout = async (): Promise<Game[]> => {
-    const now = Date.now();
-    return await db.fetchTimedoutPendingGames(
-        now - config.GAME_TIMEOUT * 1000,
+    const games = await db.fetchTimedoutPendingGames(
+        Date.now() - config.GAME_TIMEOUT * 1000,
     );
+    return games.filter((game) => game.turns.length >= config.MINIMUM_TURN_COUNT);
 }
 
 export const expireTurn = async (game: Game): Promise<Message> => {
