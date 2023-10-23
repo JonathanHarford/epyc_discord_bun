@@ -1,18 +1,18 @@
 # epyc_discord_bun
 
+This Discord bot administers the party game [Eat Poop You Cat](https://boardgamegeek.com/boardgame/30618/eat-poop-you-cat) aka Telephone Pictionary aka the board games [Cranium Scribblish](https://boardgamegeek.com/boardgame/82610/cranium-scribblish) and [Telestrations](https://en.wikipedia.org/wiki/Telestrations); aka the web games Broken Picture Telephone(RIP), [Doodle or Die](https://doodleordie.com/), and [Drawception](https://drawception.com/); aka the *syncronous* Discord game [Gartic Phone](https://garticphone.com/).
+
+## Prerequisites:
+
+* PostgreSQL
+
 ## Use
 
-To install dependencies:
+1. Install dependencies: `bun install`
 
-```bash
-bun install
-```
+1. Add your environment variables to `.env`. You can see what needs to be defined in `src/config.ts`.
 
-To run:
-
-```bash
-bun run index.ts
-```
+1. `bun run index.ts`
 
 ## Todo
 
