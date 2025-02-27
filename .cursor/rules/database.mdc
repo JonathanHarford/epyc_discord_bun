@@ -1,0 +1,7 @@
+---
+description: Database interface
+globs: prisma/*, src/lib/server/prisma.ts, src/lib/server/services/*, src/lib/server/usecases/*, src/lib/types/*
+alwaysApply: false
+---
+- **Prisma**: Use Prisma for database access.
+- **Encapsulate Database Queries**: All queries should be wrapped in functions that return domain objects.

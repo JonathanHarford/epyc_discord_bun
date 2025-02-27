@@ -1,10 +1,12 @@
-Here is an example of a game administered by epyc-bot and played by Alice, Bob, Carol, and Dmitri. All epyc-bot messages are ephemeral unless stated otherwise. Messages with "->" are to a specific person or channel.
+# Example game
+
+Here is an example of a game administered by epyc-bot and played by Alice, Bob, Carol, and Dmitri. All epyc-bot messages are ephemeral unless stated otherwise. Messages with "→" are to a specific person or channel.
 
 Alice: /help
 epyc-bot: Eat Poop You Cat! The first player writes a sentence, the second player draws a picture of that sentence, the third player writes a sentence of that picture, and so on. At the end of the game, it gets posted to #epyc where players can admire the art, the writing, and how the concept mutated. When providing an initiating sentence, input something that will be visually interesting! Type `/play` or `/status`.
 
 Alice: /status
-epyc-bot: Games in progress: 0. Yours: 0 done, 0 in progress, no turn pending. 
+epyc-bot: Games in progress: 0. Yours: 0 done, 0 in progress, no turn pending.
 
 Alice: /play
 epyc-bot: You are starting Game #1! You have 10 minutes to `/submit` an initiating sentence.
@@ -27,7 +29,7 @@ epyc-bot: You are starting Game #2! You have 10 minutes to `/submit` an initiati
 Alice: /status
 epyc-bot: Games in progress: 2. Yours: 0 done, 2 in progress. You have 9 minutes to `/submit` an initiating sentence.
 
-(24 hours pass)
+(9 minutes pass)
 
 epyc-bot → Alice: Your turn has timed out. Use `/play` to play.
 
@@ -128,5 +130,4 @@ epyc-bot → #epyc: Alice: The cat sat on the mat.
 epyc-bot → #epyc: Bob: [Bob's picture]
 epyc-bot → #epyc: Carol: Tony the Tiger lounges on a persian rug.
 epyc-bot → #epyc: Dmitri: [Dmitri's picture]
-epyc-bot → #epyc: This game started at 13:31 PT on September 11, 2023 and finished 9 days later at 11:24 PT on September 20, 2023. Thanks for playing! 
-
+epyc-bot → #epyc: This game started at 13:31 PT on September 11, 2023 and finished 9 days later at 11:24 PT on September 20, 2023. Thanks for playing!
